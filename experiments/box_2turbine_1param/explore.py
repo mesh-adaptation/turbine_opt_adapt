@@ -1,5 +1,6 @@
-# TODO: text
-
+"""
+Explore the parameter space by sampling a range of control values.
+"""
 import argparse
 import matplotlib.pyplot as plt
 from firedrake import *

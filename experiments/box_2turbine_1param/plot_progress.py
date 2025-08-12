@@ -16,6 +16,8 @@ parser.add_argument(
 )
 # TODO: Accept multiple target complexities
 args = parser.parse_args()
+base = 1000
+targets = [1000] # TODO: Vary complexity
 n_range = [0, 1, 2, 2.5850]
 scaling = 1e-6 / qoi_scaling
 experiment_id = get_latest_experiment_id(hash=args.hash)
@@ -25,144 +27,92 @@ if not os.path.exists(plot_dir):
 
 # Define approaches
 go_names = {False: "Isotropic goal-oriented", True: "Anisotropic goal-oriented"}
+labels = {
+    "controls": r"Control turbine position [$\mathrm{m}$]",
+    "qois": r"Power output [$\mathrm{MW}$]",
+    "gradients": "Gradient relative to initial value",
+    "dofs": "DoF count",
+}
 
-# Plot controls for all approaches
-fig, axes = plt.subplots()
-# Plot fixed mesh cases
-for n in n_range:
+def try_plot(axes, x, y, run, label, output_dir="outputs"):
+    """
+    Attempt to plot data for a given run and variable names on the provided axes.
+
+    :param axes: Matplotlib axes to plot on.
+    :param x: Name of the x-axis variable (e.g., "timings").
+    :param y: Name of the y-axis variable (e.g., "controls").
+    :param run: Identifier for the run (e.g., "fixed_mesh_1").
+    :param label: Label for the plot line.
+    :param output_dir: Directory where the output data is stored (default: "outputs").
+    """
     try:
-        n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
-        dofs = np.load(f"outputs/fixed_mesh_{n_str}/dofs.npy")[-1]
-        timings = np.load(f"outputs/fixed_mesh_{n_str}/timings.npy")
-        controls = np.load(f"outputs/fixed_mesh_{n_str}/controls.npy")
-        axes.semilogx(timings, controls, "--x", label=f"Fixed mesh ({dofs:.0f} DoFs)")
+        x_arr = np.load(f"{output_dir}/{run}/{x}.npy")
+        y_arr = np.load(f"{output_dir}/{run}/{y}.npy")
     except FileNotFoundError:
-        print(f"Control data for fixed_mesh with n={n} not found.")
+        print(f"Data for run '{run}' not found.")
+        return
+    if y == "gradients":
+        y_arr = np.abs(y_arr) * scaling
+        y_arr /= y_arr[0]  # Normalise by the first value
+    axes.semilogx(x_arr, y_arr, "--x", label=label)
 
-# Plot goal-oriented cases
-n = args.n
-# TODO: Vary complexity
-base = 1000
-target = 1000
+def plot_fixed_mesh(axes, n, x, y):
+    """
+    Plot data for a fixed mesh with a given resolution `n` on the provided axes.
 
-for anisotropic, go_name in go_names.items():
-    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
+    :param axes: Matplotlib axes to plot on.
+    :param n: Mesh resolution.
+    :param x: Name of the x-axis variable (e.g., "timings").
+    :param y: Name of the y-axis variable (e.g., "controls").
+    """
+    n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
+    label = f"Fixed mesh ({dofs:.0f} DoFs)"
+    output_dir = "outputs"
+    run = f"fixed_mesh_{n_str}"
+    dofs = np.load(f"{output_dir}/{run}/dofs.npy")[-1]
+    try_plot(axes, x, y, run, label, output_dir=output_dir)
+
+def plot_goal_oriented(axes, n, anisotropic, target, x, y):
+    """
+    Plot data for a goal-oriented approach with a given mesh resolution `n`,
+    anisotropy, and target complexity on the provided axes.
+
+    :param axes: Matplotlib axes to plot on.
+    :param n: Mesh resolution.
+    :param anisotropic: Bool indicating if the approach is anisotropic.
+    :param target: Target complexity for the goal-oriented approach.
+    :param x: Name of the x-axis variable (e.g., "timings").
+    :param y: Name of the y-axis variable (e.g., "controls").
+    """
+    n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
+    label = rf"{go_names[anisotropic]} ($\mathcal{C}_T={target:.0f}$)"
     output_dir = f"outputs/{experiment_id}"
-    model_config = (
-        f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
+    run = (
+        f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base:.0f}_target{target:.0f}"
     )
-    try:
-        timings = np.load(f"{output_dir}/{model_config}_timings.npy")
-        controls = np.load(f"{output_dir}/{model_config}_controls.npy")
-        axes.semilogx(timings, controls, "--x", label=label)
-    except FileNotFoundError:
-        print(f"Control data not found for {model_config}.")
-axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
-axes.set_ylabel(r"Control turbine position [$\mathrm{m}$]")
-axes.grid(True)
-axes.legend()
-plt.savefig(f"{plot_dir}/controls.jpg", bbox_inches="tight")
+    try_plot(axes, x, y, run, label, output_dir=output_dir)
 
-# Plot QoIs for all approaches
-fig, axes = plt.subplots()
-# Plot fixed mesh cases
-for n in n_range:
-    try:
-        n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
-        dofs = np.load(f"outputs/fixed_mesh_{n_str}/dofs.npy")[-1]
-        timings = np.load(f"outputs/fixed_mesh_{n_str}/timings.npy")
-        qois = -np.load(f"outputs/fixed_mesh_{n_str}/qois.npy") * scaling
-        axes.semilogx(timings, qois, "--x", label=f"Fixed mesh ({dofs:.0f} DoFs)")
-    except FileNotFoundError:
-        print(f"QoI data for fixed_mesh with n={n} not found.")
-# Plot goal-oriented cases
-n = args.n
-for anisotropic, go_name in go_names.items():
-    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
-    output_dir = f"outputs/{experiment_id}"
-    model_config = (
-        f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
-    )
-    try:
-        timings = np.load(f"{output_dir}/{model_config}_timings.npy")
-        qois = -np.load(f"{output_dir}/{model_config}_qois.npy") * scaling
-        axes.semilogx(timings, qois, "--x", label=label)
-    except FileNotFoundError:
-        print(f"QoI data not found for {model_config}.")
+def plot_all(axes, x, y):
+    """
+    Plot all results on the provided axes, for all mesh resolutions and goal-oriented
+    approaches requested.
 
-axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
-axes.set_ylabel(r"Power output [$\mathrm{MW}$]")
-axes.grid(True)
-axes.legend()
-plt.savefig(f"{plot_dir}/qois.jpg", bbox_inches="tight")
+    :param axes: Matplotlib axes to plot on.
+    :param x: Name of the x-axis variable (e.g., "timings").
+    :param y: Name of the y-axis variable (e.g., "controls").
+    """
+    for n in n_range:
+        plot_fixed_mesh(axes, n, x, y)
+    for anisotropic in go_names.values():
+        for target in targets:
+            plot_goal_oriented(axes, args.n, anisotropic, target, x, y)
+    axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
+    axes.set_ylabel(labels[y])
+    axes.grid(True)
+    axes.legend()
 
-# Plot gradients for all approaches
-fig, axes = plt.subplots()
-# Plot fixed mesh cases
-for n in n_range:
-    try:
-        n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
-        dofs = np.load(f"outputs/fixed_mesh_{n_str}/dofs.npy")[-1]
-        timings = np.load(f"outputs/fixed_mesh_{n_str}/timings.npy")
-        gradients = np.abs(
-            np.load(f"outputs/fixed_mesh_{n_str}/gradients.npy") * scaling
-        )
-        gradients /= gradients[0]  # Normalise by the first value
-        axes.loglog(timings, gradients, "--x", label=f"Fixed mesh ({dofs:.0f} DoFs)")
-    except FileNotFoundError:
-        print(f"Gradient data for fixed_mesh with n={n} not found.")
-# Plot goal-oriented cases
-n = args.n
-for anisotropic, go_name in go_names.items():
-    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
-    output_dir = f"outputs/{experiment_id}"
-    model_config = (
-        f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
-    )
-    try:
-        timings = np.load(f"{output_dir}/{model_config}_timings.npy")
-        gradients = np.abs(
-            np.load(f"{output_dir}/{model_config}_gradients.npy") * scaling
-        )
-        gradients /= gradients[0]  # Normalise by the first value
-        axes.loglog(timings, gradients, "--x", label=label)
-    except FileNotFoundError:
-        print(f"Gradient data not found for {model_config}.")
-
-axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
-axes.set_ylabel("Gradient relative to initial value")
-axes.grid(True)
-axes.legend()
-plt.savefig(f"{plot_dir}/gradients.jpg", bbox_inches="tight")
-
-# Plot dof counts for all approaches
-fig, axes = plt.subplots()
-# Plot fixed mesh cases
-for n in n_range:
-    try:
-        n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
-        dofs = np.load(f"outputs/fixed_mesh_{n_str}/dofs.npy")
-        timings = np.load(f"outputs/fixed_mesh_{n_str}/timings.npy")
-        axes.loglog(timings, dofs, "--x", label=f"Fixed mesh ({dofs[-1]:.0f} DoFs)")
-    except FileNotFoundError:
-        print(f"DoF count data for fixed_mesh with n={n} not found.")
-# Plot goal-oriented cases
-n = args.n
-for anisotropic, go_name in go_names.items():
-    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
-    output_dir = f"outputs/{experiment_id}"
-    model_config = (
-        f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
-    )
-    try:
-        dofs = np.load(f"{output_dir}/{model_config}_dofs.npy")
-        timings = np.load(f"{output_dir}/{model_config}_timings.npy")
-        axes.loglog(timings, dofs, "--x", label=label)
-    except FileNotFoundError:
-        print(f"DoF count data not found for {model_config}.")
-
-axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
-axes.set_ylabel("DoF count")
-axes.grid(True)
-axes.legend()
-plt.savefig(f"{plot_dir}/dofs.jpg", bbox_inches="tight")
+# Plot results for all dependent variables
+for label in labels:
+    fig, axes = plt.subplots()
+    plot_all(axes, "timings", label)
+    plt.savefig(f"{plot_dir}/{label}.jpg", bbox_inches="tight")

@@ -24,7 +24,7 @@ if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
 # Define approaches
-go_labels = {False: "Isotropic goal-oriented", True: "Anisotropic goal-oriented"}
+go_names = {False: "Isotropic goal-oriented", True: "Anisotropic goal-oriented"}
 
 # Plot controls for all approaches
 fig, axes = plt.subplots()
@@ -45,7 +45,8 @@ n = args.n
 base = 1000
 target = 1000
 
-for anisotropic, label in go_labels.items():
+for anisotropic, go_name in go_names.items():
+    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
     output_dir = f"outputs/{experiment_id}"
     model_config = (
         f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
@@ -76,7 +77,8 @@ for n in n_range:
         print(f"QoI data for fixed_mesh with n={n} not found.")
 # Plot goal-oriented cases
 n = args.n
-for anisotropic, label in go_labels.items():
+for anisotropic, go_name in go_names.items():
+    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
     output_dir = f"outputs/{experiment_id}"
     model_config = (
         f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
@@ -111,7 +113,8 @@ for n in n_range:
         print(f"Gradient data for fixed_mesh with n={n} not found.")
 # Plot goal-oriented cases
 n = args.n
-for anisotropic, label in go_labels.items():
+for anisotropic, go_name in go_names.items():
+    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
     output_dir = f"outputs/{experiment_id}"
     model_config = (
         f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"
@@ -145,7 +148,8 @@ for n in n_range:
         print(f"DoF count data for fixed_mesh with n={n} not found.")
 # Plot goal-oriented cases
 n = args.n
-for anisotropic, label in go_labels.items():
+for anisotropic, go_name in go_names.items():
+    label = rf"{go_name} ($\mathcal{C}_T={target:.0f}$)"
     output_dir = f"outputs/{experiment_id}"
     model_config = (
         f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base}_target{target}"

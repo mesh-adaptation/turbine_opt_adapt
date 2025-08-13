@@ -26,7 +26,6 @@ if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
 # Define approaches
-go_names = {False: "Isotropic goal-oriented", True: "Anisotropic goal-oriented"}
 labels = {
     "controls": r"Control turbine position [$\mathrm{m}$]",
     "qois": r"Power output [$\mathrm{MW}$]",
@@ -34,7 +33,23 @@ labels = {
     "dofs": "DoF count",
 }
 
-def try_plot(axes, x, y, run, label, output_dir="outputs"):
+def try_load(run, variable, output_dir):
+    """
+    Attempt to load a numpy array for a given run and variable name.
+
+    :param run: Identifier for the run (e.g., "fixed_mesh_1").
+    :param variable: Name of the variable to load (e.g., "timings").
+    :param output_dir: Directory where the output data is stored (default: "outputs").
+    :return: Loaded numpy array or None if not found.
+    """
+    fname = f"{output_dir}/{run}_{variable}.npy"
+    try:
+        return np.load(fname)
+    except FileNotFoundError as file_error:
+        print(f"File '{fname}' not found.")
+        raise FileNotFoundError from file_error
+
+def try_plot(axes, x, y, run, label, output_dir):
     """
     Attempt to plot data for a given run and variable names on the provided axes.
 
@@ -46,10 +61,9 @@ def try_plot(axes, x, y, run, label, output_dir="outputs"):
     :param output_dir: Directory where the output data is stored (default: "outputs").
     """
     try:
-        x_arr = np.load(f"{output_dir}/{run}/{x}.npy")
-        y_arr = np.load(f"{output_dir}/{run}/{y}.npy")
+        x_arr = try_load(run, x, output_dir)
+        y_arr = try_load(run, x, output_dir)
     except FileNotFoundError:
-        print(f"Data for run '{run}' not found.")
         return
     if y == "gradients":
         y_arr = np.abs(y_arr) * scaling
@@ -66,11 +80,14 @@ def plot_fixed_mesh(axes, n, x, y):
     :param y: Name of the y-axis variable (e.g., "controls").
     """
     n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
-    label = f"Fixed mesh ({dofs:.0f} DoFs)"
-    output_dir = "outputs"
     run = f"fixed_mesh_{n_str}"
-    dofs = np.load(f"{output_dir}/{run}/dofs.npy")[-1]
-    try_plot(axes, x, y, run, label, output_dir=output_dir)
+    output_dir = f"outputs/{run}"
+    try:
+        dofs = try_load(run, x, output_dir)[-1]
+    except FileNotFoundError:
+        return
+    label = f"Fixed mesh ({dofs:.0f} DoFs)"
+    try_plot(axes, x, y, run, label, output_dir)
 
 def plot_goal_oriented(axes, n, anisotropic, target, x, y):
     """
@@ -85,12 +102,11 @@ def plot_goal_oriented(axes, n, anisotropic, target, x, y):
     :param y: Name of the y-axis variable (e.g., "controls").
     """
     n_str = n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
-    label = rf"{go_names[anisotropic]} ($\mathcal{C}_T={target:.0f}$)"
-    output_dir = f"outputs/{experiment_id}"
-    run = (
-        f"goal_oriented_n{n}_anisotropic{int(anisotropic)}_base{base:.0f}_target{target:.0f}"
-    )
-    try_plot(axes, x, y, run, label, output_dir=output_dir)
+    aniso = int(anisotropic)
+    go_name = ["Isotropic goal-oriented", "Anisotropic goal-oriented"][aniso]
+    label = rf"{go_name} ($\mathcal{{C}}_T={target:.0f}$)"
+    run = f"goal_oriented_n{n}_anisotropic{aniso}_base{base:.0f}_target{target:.0f}"
+    try_plot(axes, x, y, run, label, output_dir=f"outputs/{experiment_id}")
 
 def plot_all(axes, x, y):
     """
@@ -103,7 +119,7 @@ def plot_all(axes, x, y):
     """
     for n in n_range:
         plot_fixed_mesh(axes, n, x, y)
-    for anisotropic in go_names.values():
+    for anisotropic in range(2):
         for target in targets:
             plot_goal_oriented(axes, args.n, anisotropic, target, x, y)
     axes.set_xlabel(r"CPU time [$\mathrm{s}$]")

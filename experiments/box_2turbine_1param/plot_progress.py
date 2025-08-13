@@ -62,13 +62,15 @@ def try_plot(axes, x, y, run, label, output_dir):
     """
     try:
         x_arr = try_load(run, x, output_dir)
-        y_arr = try_load(run, x, output_dir)
+        y_arr = try_load(run, y, output_dir)
     except FileNotFoundError:
         return
     if y == "gradients":
         y_arr = np.abs(y_arr) * scaling
         y_arr /= y_arr[0]  # Normalise by the first value
-    axes.semilogx(x_arr, y_arr, "--x", label=label)
+        axes.loglog(x_arr, y_arr, "--x", label=label)
+    else:
+        axes.semilogx(x_arr, y_arr, "--x", label=label)
 
 def plot_fixed_mesh(axes, n, x, y):
     """
@@ -83,7 +85,7 @@ def plot_fixed_mesh(axes, n, x, y):
     run = f"fixed_mesh_{n_str}"
     output_dir = f"outputs/{run}"
     try:
-        dofs = try_load(run, x, output_dir)[-1]
+        dofs = try_load(run, "dofs", output_dir)[-1]
     except FileNotFoundError:
         return
     label = f"Fixed mesh ({dofs:.0f} DoFs)"

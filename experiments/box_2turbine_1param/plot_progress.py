@@ -23,12 +23,13 @@ class ProgressPlotter:
     base = 1000  # Base value for target complexity
     scaling = 1e-6 / qoi_scaling # Scaling factor for QoIs and gradients
 
-    def __init__(self, axes, x, y, experiment_id, n_range, targets):
+    def __init__(self, axes, x, y, experiment_id, base_n, n_range, targets):
         """
         :param axes: Matplotlib axes to plot on.
         :param x: Name of the x-axis variable (e.g., "timings").
         :param y: Name of the y-axis variable (e.g., "controls").
         :param experiment_id: Identifier for the experiment.
+        :param base_n: Base mesh resolution for goal-oriented approaches.
         :param n_range: Range of mesh resolutions to consider.
         :param targets: List of target complexities for goal-oriented approaches.
         """
@@ -36,11 +37,11 @@ class ProgressPlotter:
         self.x = x
         self.y = y
         self.plot_dir = f"plots/{experiment_id}"
+        self.base_n = base_n
         self.n_range = n_range
         self.targets = targets
 
-    @staticmethod
-    def try_load(run, variable, output_dir):
+    def try_load(self, run, variable, output_dir):
         """
         Attempt to load a numpy array for a given run and variable name.
 
@@ -71,8 +72,8 @@ class ProgressPlotter:
         :param output_dir: Directory where the output data is stored.
         """
         try:
-            x_arr = try_load(run, self.x, output_dir)
-            y_arr = try_load(run, self.y, output_dir)
+            x_arr = self.try_load(run, self.x, output_dir)
+            y_arr = self.try_load(run, self.y, output_dir)
         except FileNotFoundError:
             return
         if self.y == "gradients":
@@ -87,23 +88,23 @@ class ProgressPlotter:
 
     def plot_fixed_mesh(self, n):
         """
-        Plot data for a fixed mesh with a given resolution `n`.
+        Plot data for a fixed mesh with a given resolution.
 
         :param n: Mesh resolution.
         """
         run = f"fixed_mesh_{self.n_str(n)}"
         output_dir = f"outputs/{run}"
         try:
-            dofs = try_load(run, "dofs", output_dir)[-1]
+            dofs = self.try_load(run, "dofs", output_dir)[-1]
         except FileNotFoundError:
             return
         label = f"Fixed mesh ({dofs:.0f} DoFs)"
-        try_plot(run, label, output_dir)
+        self.try_plot(run, label, output_dir)
 
     def plot_goal_oriented(self, n, anisotropic, target):
         """
-        Plot data for a goal-oriented approach with a given mesh resolution `n`,
-        anisotropy, and target complexity.
+        Plot data for a goal-oriented approach with a given mesh resolution, anisotropy,
+        and target complexity.
 
         :param n: Mesh resolution.
         :param anisotropic: Bool indicating if the approach is anisotropic.
@@ -112,24 +113,22 @@ class ProgressPlotter:
         aniso = int(anisotropic)
         go_name = ["Isotropic goal-oriented", "Anisotropic goal-oriented"][aniso]
         label = rf"{go_name} ($\mathcal{{C}}_T={target:.0f}$)"
-        run = "_".join(
+        run = "_".join([
             "goal_oriented",
             f"n{self.n_str(n)}",
             f"anisotropic{aniso}",
             f"base{self.base:.0f}",
             f"target{target:.0f}",
-        )
-        try_plot(axes, x, y, run, label, output_dir=f"outputs/{experiment_id}")
+        ])
+        self.try_plot(run, label, output_dir=f"outputs/{experiment_id}")
 
     def plot_all(self):
-        """
-        Plot data across all configurations.
-        """
+        """Plot data across all configurations."""
         for n in self.n_range:
-            plot_fixed_mesh(n)
+            self.plot_fixed_mesh(n)
         for anisotropic in range(2):
             for target in self.targets:
-                plot_goal_oriented(args.n, anisotropic, target)
+                self.plot_goal_oriented(self.base_n, anisotropic, target)
         axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
         axes.set_ylabel(self.labels[self.y])
         axes.grid(True)
@@ -143,15 +142,16 @@ parser.add_argument(
     "--hash", type=str, default=None, help="Git hash identifier for the experiment."
 )
 args = parser.parse_args()
-targets = [1000] # TODO: Vary complexity
+targets = [1000, 2000, 4000]
 n_range = [0, 1, 2, 2.5850]
 experiment_id = get_latest_experiment_id(hash=args.hash)
 plot_dir = f"plots/{experiment_id}"
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
+# TODO: Plot legend separately
 for label in ProgressPlotter.labels:
     fig, axes = plt.subplots()
-    plotter = ProgressPlotter(axes, "timings", label, experiment_id, n_range, targets)
+    plotter = ProgressPlotter(axes, "timings", label, experiment_id, args.n, n_range, targets)
     plotter.plot_all()
     plt.savefig(f"{plot_dir}/{label}.jpg", bbox_inches="tight")

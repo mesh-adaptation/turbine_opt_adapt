@@ -21,7 +21,7 @@ class ProgressPlotter:
         "dofs": "DoF count",
     }
     base = 1000  # Base value for target complexity
-    scaling = 1e-6 / qoi_scaling # Scaling factor for QoIs and gradients
+    scaling = -1e-6 / qoi_scaling # Scaling factor for QoIs and gradients
 
     def __init__(self, axes, x, y, experiment_id, base_n, n_range, targets):
         """
@@ -132,26 +132,36 @@ class ProgressPlotter:
         axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
         axes.set_ylabel(self.labels[self.y])
         axes.grid(True)
-        axes.legend()
 
 parser = argparse.ArgumentParser(
     description="Plot progress of controls and QoIs on different axes."
 )
 parser.add_argument("--n", type=int, default=0, help="Initial mesh resolution.")
 parser.add_argument(
-    "--hash", type=str, default=None, help="Git hash identifier for the experiment."
+    "--git_hash", type=str, default=None, help="Git hash identifier for the experiment."
 )
 args = parser.parse_args()
 targets = [1000, 2000, 4000]
 n_range = [0, 1, 2, 2.5850]
-experiment_id = get_latest_experiment_id(hash=args.hash)
+experiment_id = get_latest_experiment_id(git_hash=args.git_hash)
 plot_dir = f"plots/{experiment_id}"
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
-# TODO: Plot legend separately
 for label in ProgressPlotter.labels:
     fig, axes = plt.subplots()
     plotter = ProgressPlotter(axes, "timings", label, experiment_id, args.n, n_range, targets)
     plotter.plot_all()
+    legend_handles, _ = axes.get_legend_handles_labels()
     plt.savefig(f"{plot_dir}/{label}.jpg", bbox_inches="tight")
+
+# Create a separate figure for the legend
+legend_fig = plt.figure()
+legend_fig.legend(
+    legend_handles,
+    ProgressPlotter.labels.values(),
+    loc="center",
+    frameon=False,
+    ncol=len(ProgressPlotter.labels)
+)
+legend_fig.savefig(f"{plot_dir}/legend.jpg", bbox_inches="tight")

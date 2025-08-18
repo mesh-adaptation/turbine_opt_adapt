@@ -1,0 +1,11 @@
+# .gitignore
+
+# Subdirectories
+data/
+outputs/
+plots/
+
+# File extensions
+*.jpg
+*.npy
+*.sh

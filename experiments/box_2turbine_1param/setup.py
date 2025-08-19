@@ -1,12 +1,10 @@
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-
+from goalie.field import Field
+from goalie.go_mesh_seq import GoalOrientedMeshSeq
 from thetis import *
 from thetis.options import DiscreteTidalTurbineFarmOptions
 from thetis.solver2d import FlowSolver2d
-
-from goalie.field import Field
-from goalie.go_mesh_seq import GoalOrientedMeshSeq
 
 __all__ = [
     "turbine_locations",

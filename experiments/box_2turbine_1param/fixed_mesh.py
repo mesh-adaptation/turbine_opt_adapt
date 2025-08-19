@@ -1,20 +1,15 @@
 import argparse
-import matplotlib.pyplot as plt
-import numpy as np
 import os
 from time import perf_counter
 
+import matplotlib.pyplot as plt
+import numpy as np
 from firedrake.pyplot import tricontourf
 from firedrake.utility_meshes import RectangleMesh
-
 from goalie.adjoint import AdjointMeshSeq
-from goalie.log import pyrint
-from goalie.metric import ramp_complexity
-from goalie.plot import plot_indicator_snapshots
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
-
 from setup import *
 
 # Add argparse for command-line arguments

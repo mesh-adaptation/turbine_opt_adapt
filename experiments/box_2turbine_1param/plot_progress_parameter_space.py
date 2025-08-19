@@ -1,9 +1,9 @@
 import argparse
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 from scipy.interpolate import CubicSpline
-
 from setup import qoi_scaling
 
 # Add argparse for command-line arguments

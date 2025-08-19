@@ -1,10 +1,9 @@
 import argparse
-import matplotlib.pyplot as plt
 import os
 
+import matplotlib.pyplot as plt
 from firedrake.checkpointing import CheckpointFile
 from firedrake.pyplot import triplot
-
 from utils import get_latest_experiment_id
 
 # Add argparse for command-line arguments

@@ -2,11 +2,10 @@
 Explore the parameter space by sampling a range of control values.
 """
 import argparse
-import matplotlib.pyplot as plt
-from firedrake import *
-from goalie import *
-from firedrake.pyplot import *
 
+from firedrake import *
+from firedrake.pyplot import *
+from goalie import *
 from setup import *
 
 # Add argparse for command-line arguments

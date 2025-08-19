@@ -2,12 +2,13 @@
 Plot progress of controls and QoIs on different axes.
 """
 import argparse
-import matplotlib.pyplot as plt
-import numpy as np
 import os
 
+import matplotlib.pyplot as plt
+import numpy as np
 from setup import qoi_scaling
 from utils import get_latest_experiment_id
+
 
 class ProgressPlotter:
     """

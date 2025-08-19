@@ -1,27 +1,24 @@
 import argparse
+import os
+from time import perf_counter
+
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
-import os
-from time import perf_counter
-
-from animate.metric import RiemannianMetric
 from animate.adapt import adapt
+from animate.metric import RiemannianMetric
 from firedrake.checkpointing import CheckpointFile
-from firedrake.function import Function
 from firedrake.functionspace import TensorFunctionSpace
 from firedrake.pyplot import tricontourf
 from firedrake.utility_meshes import RectangleMesh
-
 from goalie.go_mesh_seq import GoalOrientedMeshSeq
 from goalie.log import pyrint
 from goalie.metric import ramp_complexity
-from goalie.plot import plot_indicator_snapshots
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
+from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
-
 from setup import *
 from utils import get_experiment_id
 

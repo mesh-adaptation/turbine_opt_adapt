@@ -24,16 +24,38 @@ packages = ["turbine_opt_adapt"]
 [tool.ruff]
 line-length = 88
 
+[tool.ruff.format]
+docstring-code-format = true
+
 [tool.ruff.lint]
 select = [
+  "A",  # flake8-builtins
+  "ARG",  # unused arguments
   "B",  # flake8-bugbear
+  "BLE", # flake8-blind-except
   "C",  # mccabe complexity
   "D",  # documentation
-  "E", "W",  # Pycodestyle
+  "E",  # pycodestyle-error
+  # TODO: "EM", # flake8-errmsg
   "F",  # Pyflakes
+  "FLY", # flake8-flynt
   "I",  # isort
+  "ICN",  # flake8-import-conventions
+  "NPY", # Numpy
+  "PIE",  # flake8-pie
+  # TODO: "PL",  # Pylint
+  "Q", # flake8-quotes
+  "RSE", # flake8-raise
+  # TODO: "S", # flake8-bandit
+  "SIM", # flake8-simplify
+  "SLF", # flake8-self
+  "TID", # flake8-tidy-imports
+  "W",  # pycodestyle-warning
 ]
 ignore = [
   "D211",  # Incompatible with D203
   "D213",  # Incompatible with D212
 ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

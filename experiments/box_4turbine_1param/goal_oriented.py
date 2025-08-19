@@ -9,7 +9,6 @@ from time import perf_counter
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
 from animate.adapt import adapt
 from animate.metric import RiemannianMetric
@@ -24,6 +23,7 @@ from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
+from matplotlib import ticker
 from setup import (
     SingleParameterSetup,
     fields,

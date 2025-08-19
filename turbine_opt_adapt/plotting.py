@@ -1,5 +1,6 @@
 """Module containing plotting routines for tidal energy problems."""
-import matplotlib.patches as patches
+
+from matplotlib import patches
 
 __all__ = ["add_patch"]
 

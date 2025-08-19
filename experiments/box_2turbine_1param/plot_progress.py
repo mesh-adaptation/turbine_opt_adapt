@@ -37,6 +37,7 @@ class ProgressPlotter:
         self.axes = axes
         self.x = x
         self.y = y
+        self.experiment_id = experiment_id
         self.plot_dir = f"plots/{experiment_id}"
         self.base_n = base_n
         self.n_range = n_range
@@ -121,7 +122,7 @@ class ProgressPlotter:
             f"base{self.base:.0f}",
             f"target{target:.0f}",
         ])
-        self.try_plot(run, label, output_dir=f"outputs/{experiment_id}")
+        self.try_plot(run, label, output_dir=f"outputs/{self.experiment_id}")
 
     def plot_all(self):
         """Plot data across all configurations."""
@@ -144,14 +145,14 @@ parser.add_argument(
 args = parser.parse_args()
 targets = [1000, 2000, 4000]
 n_range = [0, 1, 2, 2.5850]
-experiment_id = get_latest_experiment_id(git_hash=args.git_hash)
-plot_dir = f"plots/{experiment_id}"
+exp_id = get_latest_experiment_id(git_hash=args.git_hash)
+plot_dir = f"plots/{exp_id}"
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
 for label in ProgressPlotter.labels:
     fig, axes = plt.subplots()
-    plotter = ProgressPlotter(axes, "timings", label, experiment_id, args.n, n_range, targets)
+    plotter = ProgressPlotter(axes, "timings", label, exp_id, args.n, n_range, targets)
     plotter.plot_all()
     legend_handles, _ = axes.get_legend_handles_labels()
     plt.savefig(f"{plot_dir}/{label}.jpg", bbox_inches="tight")

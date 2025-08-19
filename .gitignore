@@ -4,6 +4,7 @@
 data/
 outputs/
 plots/
+turbine_opt_adapt.egg-info/
 
 # File extensions
 *.jpg

@@ -20,7 +20,7 @@ from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
 from setup import fields, get_initial_condition, get_qoi, get_solver, plot_patches
-from utils import get_experiment_id
+from turbine_opt_adapt.experiment import get_experiment_id
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Run with goal-oriented adaptation.")

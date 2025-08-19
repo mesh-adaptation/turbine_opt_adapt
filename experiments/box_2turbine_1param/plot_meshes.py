@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 from firedrake.checkpointing import CheckpointFile
 from firedrake.pyplot import triplot
-from utils import get_latest_experiment_id
+from turbine_opt_adapt.experiment import get_latest_experiment_id
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Plot meshes from a given simulation.")

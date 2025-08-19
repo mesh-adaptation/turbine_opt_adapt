@@ -1,3 +1,6 @@
+"""
+Module containing functions for setting up experiments.
+"""
 import datetime
 import os
 import subprocess
@@ -13,12 +16,11 @@ def get_git_hash(index=None):
         commit.
     :return: The short git hash of the commit.
     """
+    rev = "HEAD"
     if index is not None:
         if index < 0:
             raise ValueError("Index must be a non-negative integer.")
-        elif index == 0:
-            rev = "HEAD"
-        else:
+        elif index > 0:
             rev = f"HEAD~{index}"
     try:
         return (

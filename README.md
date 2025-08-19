@@ -9,6 +9,10 @@ goal-oriented mesh adaptation functionality is provided by
 [Goalie](https://github.com/mesh-adaptation/goalie) and
 [Animate](https://github.com/mesh-adaptation/animate).
 
+The experiments in this repository are used to generate results for a paper
+entitled *Combining PDE-constrained optimisation with goal-oriented mesh
+adaptation* by Joseph G. Wallwork et al., which is currently work in progress.
+
 ## Installation
 
 1. Install PETSc with the Mmg metric-based mesh adaptation tool by following the

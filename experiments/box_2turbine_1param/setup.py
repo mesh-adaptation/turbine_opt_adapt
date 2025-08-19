@@ -294,7 +294,7 @@ def plot_setup(filename):
     axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
     axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
     axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
-    for i, (xloc, yloc) in enumerate(turbine_locations[:3]):
+    for xloc, yloc in turbine_locations[:3]:
         add_patch(axes, xloc, yloc, "C0", "Fixed turbines")
     xc, yc = turbine_locations[3]
     add_patch(axes, xc, yc, "C1", "Control turbine")
@@ -331,7 +331,7 @@ def plot_patches(mesh_seq, optimised, filename):
     """
     fig, axes = plt.subplots(figsize=(12, 5))
     mesh_seq.plot(fig=fig, axes=axes)
-    for i, (xloc, yloc) in enumerate(turbine_locations[:3]):
+    for xloc, yloc in turbine_locations[:3]:
         add_patch(axes, xloc, yloc, "C0", "Fixed turbines")
     xc, yc = turbine_locations[3]
     add_patch(axes, xc, yc, "C1", "Initial control turbine")

@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 from firedrake.checkpointing import CheckpointFile
 from firedrake.pyplot import triplot
+
 from turbine_opt_adapt.experiment import get_latest_experiment_id
 
 # Add argparse for command-line arguments

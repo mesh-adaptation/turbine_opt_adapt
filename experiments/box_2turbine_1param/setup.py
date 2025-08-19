@@ -1,4 +1,3 @@
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import ufl
 from finat.ufl import FiniteElement, MixedElement, VectorElement
@@ -10,6 +9,8 @@ from goalie.go_mesh_seq import GoalOrientedMeshSeq
 from thetis.options import DiscreteTidalTurbineFarmOptions
 from thetis.solver2d import FlowSolver2d
 from thetis.utility import domain_constant, get_functionspace, unfrozen
+
+from turbine_opt_adapt.plotting import add_patch
 
 __all__ = [
     "turbine_locations",
@@ -255,36 +256,6 @@ def get_qoi(mesh_seq, index):
         return J_overall
 
     return steady_qoi
-
-
-def add_patch(axes, xloc, yloc, colour, label, diameter=20.0):
-    """
-    Adds a square patch to the given axes at the specified location.
-
-    :param axes: The matplotlib axes object to which the patch will be added.
-    :type axes: matplotlib.axes.Axes
-    :param xloc: The x-coordinate of the center of the square.
-    :type xloc: float
-    :param yloc: The y-coordinate of the center of the square.
-    :type yloc: float
-    :param colour: The color of the square (used for both edge and face).
-    :type colour: str
-    :param label: The label associated with the square.
-    :type label: str
-    :param diameter: The side length of the square. Defaults to 20.0.
-    :type diameter: float
-    """
-    axes.add_patch(
-        patches.Rectangle(
-            (xloc - diameter / 2, yloc - diameter / 2),
-            diameter,
-            diameter,
-            edgecolor=colour,
-            facecolor=colour,
-            linewidth=0.1,
-            label=label,
-        )
-    )
 
 
 def plot_setup(filename):

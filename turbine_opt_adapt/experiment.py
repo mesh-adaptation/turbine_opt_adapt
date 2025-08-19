@@ -1,6 +1,4 @@
-"""
-Module containing functions for setting up experiments.
-"""
+"""Module containing functions for setting up experiments."""
 import datetime
 import os
 import subprocess
@@ -9,8 +7,7 @@ __all__ = ["get_experiment_id", "get_latest_experiment_id"]
 
 
 def get_git_hash(index=None):
-    """
-    Get the git hash for a specific commit.
+    """Get the git hash for a specific commit.
 
     :param index: The index of the commit to retrieve. If None, retrieves the latest
         commit.
@@ -33,8 +30,7 @@ def get_git_hash(index=None):
 
 
 def get_experiment_id():
-    """
-    Generate experiment identifier with datetime stamp and git hash.
+    """Generate experiment identifier with datetime stamp and git hash.
 
     :return: A string in the format "YYYYMMDD_<git_hash>".
     """
@@ -42,8 +38,7 @@ def get_experiment_id():
 
 
 def get_latest_experiment_id(git_hash=None):
-    """
-    Get the latest experiment ID that contains outputs.
+    """Get the latest experiment ID that contains outputs.
 
     :param git_hash: Optional git hash to filter experiments. If provided, only
         experiments with this git hash will be considered.

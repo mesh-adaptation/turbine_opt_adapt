@@ -25,7 +25,12 @@ line-length = 88
 select = [
   "B",  # flake8-bugbear
   "C",  # mccabe complexity
+  "D",  # documentation
   "E", "W",  # Pycodestyle
   "F",  # Pyflakes
   "I",  # isort
+]
+ignore = [
+  "D211",  # Incompatible with D203
+  "D213",  # Incompatible with D212
 ]

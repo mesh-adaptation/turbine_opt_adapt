@@ -1,5 +1,6 @@
-"""
-Plot progress of controls and QoIs on different axes.
+"""Plot progress of controls, QoIs, gradients, and DoFs on different axes.
+
+Run `python3 plot_progress.py --help` to see the available command-line options.
 """
 import argparse
 import os
@@ -12,9 +13,8 @@ from turbine_opt_adapt.experiment import get_latest_experiment_id
 
 
 class ProgressPlotter:
-    """
-    Class to encapsulate the plotting logic for progress of controls and QoIs.
-    """
+
+    """Class to encapsulate the plotting logic for progress of controls and QoIs."""
 
     labels = {
         "controls": r"Control turbine position [$\mathrm{m}$]",
@@ -26,7 +26,8 @@ class ProgressPlotter:
     scaling = -1e-6 / qoi_scaling # Scaling factor for QoIs and gradients
 
     def __init__(self, axes, x, y, experiment_id, base_n, n_range, targets):
-        """
+        """Initialise the plotter.
+
         :param axes: Matplotlib axes to plot on.
         :param x: Name of the x-axis variable (e.g., "timings").
         :param y: Name of the y-axis variable (e.g., "controls").
@@ -45,8 +46,7 @@ class ProgressPlotter:
         self.targets = targets
 
     def try_load(self, run, variable, output_dir):
-        """
-        Attempt to load a numpy array for a given run and variable name.
+        """Attempt to load a numpy array for a given run and variable name.
 
         :param run: Identifier for the run (e.g., "fixed_mesh_1").
         :param variable: Name of the variable to load (e.g., "timings").
@@ -67,8 +67,7 @@ class ProgressPlotter:
         return arr
 
     def try_plot(self, run, label, output_dir):
-        """
-        Attempt to plot data for a given run and variable names on the provided axes.
+        """Attempt to plot data for a given run and variable names on the provided axes.
 
         :param run: Identifier for the run (e.g., "fixed_mesh_1").
         :param label: Label for the plot line.
@@ -90,8 +89,7 @@ class ProgressPlotter:
         return n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
 
     def plot_fixed_mesh(self, n):
-        """
-        Plot data for a fixed mesh with a given resolution.
+        """Plot data for a fixed mesh with a given resolution.
 
         :param n: Mesh resolution.
         """
@@ -105,9 +103,7 @@ class ProgressPlotter:
         self.try_plot(run, label, output_dir)
 
     def plot_goal_oriented(self, n, anisotropic, target):
-        """
-        Plot data for a goal-oriented approach with a given mesh resolution, anisotropy,
-        and target complexity.
+        """Plot data for a goal-oriented approach.
 
         :param n: Mesh resolution.
         :param anisotropic: Bool indicating if the approach is anisotropic.

@@ -1,14 +1,11 @@
-"""
-Module containing plotting routines for tidal energy problems.
-"""
+"""Module containing plotting routines for tidal energy problems."""
 import matplotlib.patches as patches
 
 __all__ = ["add_patch"]
 
 
 def add_patch(axes, xloc, yloc, colour, label, diameter=20.0):
-    """
-    Adds a square patch to the given axes at the specified location.
+    """Add a square patch to the given axes at the specified location.
 
     :param axes: The matplotlib axes object to which the patch will be added.
     :type axes: matplotlib.axes.Axes

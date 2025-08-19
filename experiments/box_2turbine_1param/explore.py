@@ -1,6 +1,4 @@
-"""
-Explore the parameter space by sampling a range of control values.
-"""
+"""Explore the parameter space by sampling a range of control values."""
 import argparse
 
 import numpy as np
@@ -31,7 +29,9 @@ y1, y2 = turbine_locations[0][1], turbine_locations[1][1]
 controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
 qois = []
 for i, control in enumerate(controls):
+
     def get_ic(*args, init_control=control):
+        """Get the initial condition with the specified control."""
         return get_initial_condition(*args, init_control=init_control)
 
     mesh_seq = AdjointMeshSeq(

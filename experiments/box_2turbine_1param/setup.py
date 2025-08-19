@@ -1,3 +1,4 @@
+"""Module containing setup functions for the single-parameter test case."""
 import matplotlib.pyplot as plt
 import ufl
 from finat.ufl import FiniteElement, MixedElement, VectorElement
@@ -45,6 +46,15 @@ fields = [
 
 
 def get_initial_condition(mesh_seq, init_control=None):
+    """Get the initial conditions for the single-parameter test case.
+
+    :param mesh_seq: mesh sequence holding the mesh
+    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+    :param init_control: initial y-coordinate of the control turbine, defaults to None
+    :type init_control: :class:`float`, optional
+    :return: dictionary with initial conditions for the solution and control variable
+    :rtype: dict
+    """
     solution_2d = Function(mesh_seq.function_spaces["solution_2d"][0])
     u, eta = solution_2d.subfunctions
     u.interpolate(ufl.as_vector((1e-03, 0.0)))
@@ -56,6 +66,13 @@ def get_initial_condition(mesh_seq, init_control=None):
 
 
 def get_solver(mesh_seq):
+    """Get the solver function for the single-parameter test case.
+
+    :param mesh_seq: mesh sequence holding the mesh
+    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+    :return: solver function that can be used to solve the problem
+    :rtype: function
+    """
     def solver(index):
         mesh = mesh_seq[index]
         u, eta = mesh_seq.field_functions["solution_2d"].subfunctions
@@ -198,6 +215,15 @@ def get_solver(mesh_seq):
 
 
 def get_qoi(mesh_seq, index):
+    """Get the quantity of interest (QoI) functional for the single-parameter test case.
+
+    :param mesh_seq: mesh sequence holding the mesh
+    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+    :param index: index of the mesh in the sequence
+    :type index: :class:`int`
+    :return: function that computes the QoI
+    :rtype: function
+    """
     def steady_qoi():
         mesh = mesh_seq[index]
         u, eta = ufl.split(mesh_seq.field_functions["solution_2d"])
@@ -238,8 +264,7 @@ def get_qoi(mesh_seq, index):
 
 
 def plot_setup(filename):
-    """
-    Plot the initial turbine locations.
+    """Plot the initial turbine locations.
 
     :arg filename: name of the file to save the plot
     :type filename: :class:`str`
@@ -274,8 +299,7 @@ def plot_setup(filename):
 
 
 def plot_patches(mesh_seq, optimised, filename):
-    """
-    Plot the initial and final turbine locations over the mesh.
+    """Plot the initial and final turbine locations over the mesh.
 
     :arg mesh_seq: mesh sequence holding the mesh
     :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`

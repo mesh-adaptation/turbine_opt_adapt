@@ -1,3 +1,7 @@
+"""Plot the parameter space using sampled controls and QoI values from fixed mesh runs.
+
+Run `python3 plot_parameter_spaces.py --help` to see the available command-line options.
+"""
 import os
 
 import matplotlib.pyplot as plt

@@ -1,3 +1,7 @@
+"""Plot meshes from a given goal-oriented simulation.
+
+Run `python3 plot_meshes.py --help` to see the available command-line options.
+"""
 import argparse
 import os
 

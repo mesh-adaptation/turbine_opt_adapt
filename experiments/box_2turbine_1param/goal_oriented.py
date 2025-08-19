@@ -1,3 +1,7 @@
+"""Run the single-parameter test case with goal-oriented adaptation.
+
+Run `python3 goal_oriented.py --help` to see the available command-line options.
+"""
 import argparse
 import os
 from time import perf_counter
@@ -112,6 +116,17 @@ print(parameters)
 
 
 def adaptor(mesh_seq, solutions, indicators):
+    """Adapt the mesh based on the error indicators and Hessian.
+
+    :param mesh_seq: the mesh sequence to adapt.
+    :type mesh_seq: :class:`~goalie.go_mesh_seq.GoalOrientedMeshSeq`
+    :param solutions: the solutions computed on the mesh sequence.
+    :type solutions: :class:`~goalie.function_data.FunctionData`
+    :param indicators: the error indicators computed on the mesh sequence.
+    :type indicators: :class:`~goalie.function_data.IndicatorData`
+    :return: a list of booleans indicating whether to continue adapting the mesh.
+    :rtype: list[bool]
+    """
     P1_ten = TensorFunctionSpace(mesh_seq[0], "CG", 1)
     metric = RiemannianMetric(P1_ten)
 

@@ -1,20 +1,18 @@
-"""
-Module containing a coastal ocean solver which is compatible with mesh adaptation.
-"""
+"""Module containing a coastal ocean solver compatible with mesh adaptation."""
 from thetis.solver2d import FlowSolver2d
 from thetis.utility import unfrozen
 
 
 class TurbineSolver2d(FlowSolver2d):
-    """
-    2D coastal ocean solver which is compatible with steady-state mesh adaptation.
+
+    """2D coastal ocean solver which is compatible with steady-state mesh adaptation.
 
     Subclass of :class:`~thetis.solver2d.FlowSolver2d`.
     """
+
     @unfrozen
     def __init__(self, mesh_seq, index, bathymetry, options=None):
-        """
-        Initialise the solver.
+        """Initialise the solver.
 
         :param mesh_seq: mesh sequence to use for the solver
         :type mesh_seq: :class:`~goalie.mesh_seq.MeshSeq`
@@ -30,8 +28,7 @@ class TurbineSolver2d(FlowSolver2d):
         self.index = index
 
     def create_function_spaces(self):
-        """
-        Create function spaces for the solver.
+        """Create function spaces for the solver.
 
         This method overrides the base class method to ensure the function spaces are
         consistent with those defined in the mesh sequence.
@@ -44,8 +41,7 @@ class TurbineSolver2d(FlowSolver2d):
         )
 
     def create_fields(self):
-        """
-        Create fields for the solver.
+        """Create fields for the solver.
 
         This method overrides the base class method to ensure the fields are consistent
         with those defined in the mesh sequence.

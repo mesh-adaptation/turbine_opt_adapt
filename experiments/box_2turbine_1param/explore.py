@@ -24,7 +24,8 @@ y1, y2 = turbine_locations[0][1], turbine_locations[1][1]
 controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
 qois = []
 for i, control in enumerate(controls):
-    get_ic = lambda *args: get_initial_condition(*args, init_control=control)
+    def get_ic(*args):
+        return get_initial_condition(*args, init_control=control)
 
     mesh_seq = AdjointMeshSeq(
         TimeInstant(fields),

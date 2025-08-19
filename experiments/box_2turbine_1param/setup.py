@@ -7,10 +7,10 @@ from firedrake.function import Function
 from goalie.field import Field
 from goalie.go_mesh_seq import GoalOrientedMeshSeq
 from thetis.options import DiscreteTidalTurbineFarmOptions
-from thetis.solver2d import FlowSolver2d
-from thetis.utility import domain_constant, get_functionspace, unfrozen
+from thetis.utility import domain_constant, get_functionspace
 
 from turbine_opt_adapt.plotting import add_patch
+from turbine_opt_adapt.solver import TurbineSolver2d
 
 __all__ = [
     "turbine_locations",
@@ -42,27 +42,6 @@ fields = [
     Field("solution_2d", finite_element=p1dgvp1dg_element, unsteady=False),
     Field("yc", family="Real", degree=0, unsteady=False, solved_for=False),
 ]
-
-
-class TurbineSolver2d(FlowSolver2d):
-    @unfrozen
-    def __init__(self, mesh_seq, index, bathymetry, options=None):
-        super().__init__(mesh_seq[index], bathymetry, options=options)
-        self.mesh_seq = mesh_seq
-        self.index = index
-
-    def create_function_spaces(self):
-        super().create_function_spaces()
-        mesh_seq = self.mesh_seq
-        self.function_spaces.V_2d = mesh_seq.function_spaces["solution_2d"][self.index]
-        self.function_spaces.U_2d, self.function_spaces.H_2d = (
-            self.function_spaces.V_2d.subspaces
-        )
-
-    def create_fields(self):
-        super().create_fields()
-        self.fields.solution_2d = self.mesh_seq.field_functions["solution_2d"]
-        self.fields.uv_2d, self.fields.elev_2d = self.fields.solution_2d.subfunctions
 
 
 def get_initial_condition(mesh_seq, init_control=None):

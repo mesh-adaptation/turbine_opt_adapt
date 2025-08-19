@@ -3,10 +3,17 @@ Explore the parameter space by sampling a range of control values.
 """
 import argparse
 
-from firedrake import *
-from firedrake.pyplot import *
-from goalie import *
-from setup import *
+import numpy as np
+from firedrake.utility_meshes import RectangleMesh
+from goalie.adjoint import AdjointMeshSeq
+from goalie.time_partition import TimeInstant
+from setup import (
+    fields,
+    get_initial_condition,
+    get_qoi,
+    get_solver,
+    turbine_locations,
+)
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Explore parameter space by varying yc.")

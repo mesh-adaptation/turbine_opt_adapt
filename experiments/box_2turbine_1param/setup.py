@@ -1,10 +1,15 @@
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import ufl
+from finat.ufl import FiniteElement, MixedElement, VectorElement
+from firedrake.assemble import assemble
+from firedrake.constant import Constant
+from firedrake.function import Function
 from goalie.field import Field
 from goalie.go_mesh_seq import GoalOrientedMeshSeq
-from thetis import *
 from thetis.options import DiscreteTidalTurbineFarmOptions
 from thetis.solver2d import FlowSolver2d
+from thetis.utility import domain_constant, get_functionspace, unfrozen
 
 __all__ = [
     "turbine_locations",
@@ -28,7 +33,7 @@ qoi_scaling = 100.0
 
 # Set up P1DGv-P1DG element
 p1dg_element = FiniteElement(
-    "Discontinuous Lagrange", triangle, 1, variant="equispaced"
+    "Discontinuous Lagrange", ufl.triangle, 1, variant="equispaced"
 )
 p1dgv_element = VectorElement(p1dg_element, dim=2)
 p1dgvp1dg_element = MixedElement([p1dgv_element, p1dg_element])
@@ -62,7 +67,7 @@ class TurbineSolver2d(FlowSolver2d):
 def get_initial_condition(mesh_seq, init_control=None):
     solution_2d = Function(mesh_seq.function_spaces["solution_2d"][0])
     u, eta = solution_2d.subfunctions
-    u.interpolate(as_vector((1e-03, 0.0)))
+    u.interpolate(ufl.as_vector((1e-03, 0.0)))
     eta.assign(0.0)
     if init_control is None:
         init_control = turbine_locations[-1][1]
@@ -77,7 +82,7 @@ def get_solver(mesh_seq):
         yc = mesh_seq.field_functions["yc"]
 
         # Specify bathymetry
-        x, y = SpatialCoordinate(mesh)
+        x, y = ufl.SpatialCoordinate(mesh)
         channel_depth = domain_constant(40.0, mesh)
         channel_width = domain_constant(500.0, mesh)
         bathymetry_scaling = domain_constant(2.0, mesh)
@@ -215,7 +220,7 @@ def get_solver(mesh_seq):
 def get_qoi(mesh_seq, index):
     def steady_qoi():
         mesh = mesh_seq[index]
-        u, eta = split(mesh_seq.field_functions["solution_2d"])
+        u, eta = ufl.split(mesh_seq.field_functions["solution_2d"])
         yc = mesh_seq.field_functions["yc"]
         farm = mesh_seq.tidal_farm
         farm_options = mesh_seq.tidal_farm_options

@@ -2,6 +2,7 @@
 
 Run `python3 goal_oriented.py --help` to see the available command-line options.
 """
+
 import argparse
 import os
 from time import perf_counter

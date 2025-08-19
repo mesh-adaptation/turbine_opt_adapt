@@ -1,4 +1,5 @@
 """Module containing setup functions for the single-parameter test case."""
+
 import matplotlib.pyplot as plt
 import ufl
 from finat.ufl import FiniteElement, MixedElement, VectorElement
@@ -73,6 +74,7 @@ def get_solver(mesh_seq):
     :return: solver function that can be used to solve the problem
     :rtype: function
     """
+
     def solver(index):
         mesh = mesh_seq[index]
         u, eta = mesh_seq.field_functions["solution_2d"].subfunctions
@@ -224,6 +226,7 @@ def get_qoi(mesh_seq, index):
     :return: function that computes the QoI
     :rtype: function
     """
+
     def steady_qoi():
         mesh = mesh_seq[index]
         u, eta = ufl.split(mesh_seq.field_functions["solution_2d"])

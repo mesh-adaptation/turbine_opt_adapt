@@ -1,4 +1,5 @@
 """Explore the parameter space by sampling a range of control values."""
+
 import argparse
 
 import numpy as np

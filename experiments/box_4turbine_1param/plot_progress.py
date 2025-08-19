@@ -2,6 +2,7 @@
 
 Run `python3 plot_progress.py --help` to see the available command-line options.
 """
+
 import argparse
 import os
 
@@ -23,7 +24,7 @@ class ProgressPlotter:
         "dofs": "DoF count",
     }
     base = 1000  # Base value for target complexity
-    scaling = -1e-6 / qoi_scaling # Scaling factor for QoIs and gradients
+    scaling = -1e-6 / qoi_scaling  # Scaling factor for QoIs and gradients
 
     def __init__(self, axes, x, y, experiment_id, base_n, n_range, targets):
         """Initialise the plotter.
@@ -112,13 +113,15 @@ class ProgressPlotter:
         aniso = int(anisotropic)
         go_name = ["Isotropic goal-oriented", "Anisotropic goal-oriented"][aniso]
         label = rf"{go_name} ($\mathcal{{C}}_T={target:.0f}$)"
-        run = "_".join([
-            "goal_oriented",
-            f"n{self.n_str(n)}",
-            f"anisotropic{aniso}",
-            f"base{self.base:.0f}",
-            f"target{target:.0f}",
-        ])
+        run = "_".join(
+            [
+                "goal_oriented",
+                f"n{self.n_str(n)}",
+                f"anisotropic{aniso}",
+                f"base{self.base:.0f}",
+                f"target{target:.0f}",
+            ]
+        )
         self.try_plot(run, label, output_dir=f"outputs/{self.experiment_id}")
 
     def plot_all(self):
@@ -131,6 +134,7 @@ class ProgressPlotter:
         axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
         axes.set_ylabel(self.labels[self.y])
         axes.grid(True)
+
 
 parser = argparse.ArgumentParser(
     description="Plot progress of controls and QoIs on different axes."
@@ -161,6 +165,6 @@ legend_fig.legend(
     ProgressPlotter.labels.values(),
     loc="center",
     frameon=False,
-    ncol=len(ProgressPlotter.labels)
+    ncol=len(ProgressPlotter.labels),
 )
 legend_fig.savefig(f"{plot_dir}/legend.jpg", bbox_inches="tight")

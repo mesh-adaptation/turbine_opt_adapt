@@ -38,7 +38,21 @@ class SingleParameterSetup:
     control_indices = {"yc": (3, 1)}
     qoi_scaling = 100.0
 
+    # TODO: Introduce a base class and move this there
+    @property
+    def initial_controls(cls):
+        """Get the initial control values.
 
+        :return: dictionary of initial control values
+        :rtype: dict[float]
+        """
+        return {
+            control: cls.turbine_locations[turbine][dim]
+            for control, (turbine, dim) in cls.control_indices.items()
+        }
+
+
+# TODO: Introduce a get_fields function in turbine_opt_adapt that automates this
 # Set up P1DGv-P1DG element
 p1dg_element = FiniteElement(
     "Discontinuous Lagrange", ufl.triangle, 1, variant="equispaced"
@@ -51,6 +65,7 @@ fields = [
 ]
 
 
+# TODO: Introduce a get_fields function in turbine_opt_adapt that automates this
 def get_initial_condition(mesh_seq, init_control=None):
     """Get the initial conditions for the single-parameter test case.
 
@@ -66,11 +81,13 @@ def get_initial_condition(mesh_seq, init_control=None):
     u.interpolate(ufl.as_vector((1e-03, 0.0)))
     eta.assign(0.0)
     if init_control is None:
-        init_control = mesh_seq.test_case_setup.turbine_locations[-1][1]
+        turbine, dim = mesh_seq.test_case_setup.control_indices["yc"]
+        init_control = mesh_seq.test_case_setup.turbine_locations[turbine][dim]
     yc = Function(mesh_seq.function_spaces["yc"][0]).assign(init_control)
     return {"solution_2d": solution_2d, "yc": yc}
 
 
+# TODO: Move to turbine_opt_adapt solver module
 def get_solver(mesh_seq):
     """Get the solver function for the single-parameter test case.
 
@@ -83,7 +100,6 @@ def get_solver(mesh_seq):
     def solver(index):
         mesh = mesh_seq[index]
         u, eta = mesh_seq.field_functions["solution_2d"].subfunctions
-        yc = mesh_seq.field_functions["yc"]
 
         # Specify bathymetry
         x, y = ufl.SpatialCoordinate(mesh)
@@ -200,7 +216,10 @@ def get_solver(mesh_seq):
             [domain_constant(xloc, mesh), domain_constant(yloc, mesh)]
             for (xloc, yloc) in mesh_seq.test_case_setup.turbine_locations
         ]
-        farm_options.turbine_coordinates[-1][1] = yc  # last turbine is controlled
+        for control, (turbine, dim) in mesh_seq.test_case_setup.control_indices.items():
+            farm_options.turbine_coordinates[turbine][dim] = (
+                mesh_seq.field_functions[control]
+            )
         options.discrete_tidal_turbine_farms["everywhere"] = [farm_options]
 
         # Apply initial conditions and solve
@@ -306,6 +325,7 @@ def plot_setup(filename):
     plt.savefig(filename, bbox_inches="tight")
 
 
+# TODO: Introduce a get_fields function in turbine_opt_adapt that automates this
 def plot_patches(mesh_seq, optimised, filename):
     """Plot the initial and final turbine locations over the mesh.
 

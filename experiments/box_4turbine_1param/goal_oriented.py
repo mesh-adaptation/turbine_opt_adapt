@@ -24,7 +24,14 @@ from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
-from setup import fields, get_initial_condition, get_qoi, get_solver, plot_patches
+from setup import (
+    SingleParameterSetup,
+    fields,
+    get_initial_condition,
+    get_qoi,
+    get_solver,
+    plot_patches,
+)
 
 from turbine_opt_adapt.experiment import get_experiment_id
 
@@ -90,6 +97,7 @@ mesh_seq = GoalOrientedMeshSeq(
     get_qoi=get_qoi,
     qoi_type="steady",
 )
+mesh_seq.test_case_setup = SingleParameterSetup
 
 # Solve the adjoint problem, computing gradients, and plot the x-velocity component of
 # both the forward and adjoint solutions

@@ -10,7 +10,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import CubicSpline
-from setup import qoi_scaling
+from setup import SingleParameterSetup
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(
@@ -20,7 +20,7 @@ parser.add_argument("--n", type=int, default=0, help="Initial mesh resolution.")
 args = parser.parse_args()
 
 n = args.n
-scaling = 1e-6 / qoi_scaling
+scaling = 1e-6 / SingleParameterSetup.qoi_scaling
 
 sampled_controls = np.load(f"outputs/fixed_mesh_{n}/sampled_controls.npy")
 sampled_qois = -np.load(f"outputs/fixed_mesh_{n}/sampled_qois.npy") * scaling

@@ -16,6 +16,7 @@ from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
 from setup import (
+    SingleParameterSetup,
     fields,
     get_initial_condition,
     get_qoi,
@@ -59,6 +60,7 @@ mesh_seq = AdjointMeshSeq(
     get_qoi=get_qoi,
     qoi_type="steady",
 )
+mesh_seq.test_case_setup = SingleParameterSetup
 
 # Plot the problem setup
 if args.plot_setup:

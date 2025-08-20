@@ -15,8 +15,7 @@ from turbine_opt_adapt.plotting import add_patch
 from turbine_opt_adapt.solver import TurbineSolver2d
 
 __all__ = [
-    "turbine_locations",
-    "qoi_scaling",
+    "SingleParameterSetup",
     "fields",
     "get_initial_condition",
     "get_solver",
@@ -25,14 +24,20 @@ __all__ = [
     "plot_patches",
 ]
 
-turbine_locations = [
-    (450.0, 250.0),
-    (450.0, 310.0),
-    (450.0, 190.0),
-    (750.0, 260.0),
-]
 
-qoi_scaling = 100.0
+class SingleParameterSetup:
+
+    """Class to hold parameters related to the single-parameter test case."""
+
+    turbine_locations = [
+        (450.0, 250.0),
+        (450.0, 310.0),
+        (450.0, 190.0),
+        (750.0, 260.0),
+    ]
+    control_indices = {"yc": (3, 1)}
+    qoi_scaling = 100.0
+
 
 # Set up P1DGv-P1DG element
 p1dg_element = FiniteElement(
@@ -61,7 +66,7 @@ def get_initial_condition(mesh_seq, init_control=None):
     u.interpolate(ufl.as_vector((1e-03, 0.0)))
     eta.assign(0.0)
     if init_control is None:
-        init_control = turbine_locations[-1][1]
+        init_control = mesh_seq.test_case_setup.turbine_locations[-1][1]
     yc = Function(mesh_seq.function_spaces["yc"][0]).assign(init_control)
     return {"solution_2d": solution_2d, "yc": yc}
 
@@ -193,7 +198,7 @@ def get_solver(mesh_seq):
         farm_options.upwind_correction = False
         farm_options.turbine_coordinates = [
             [domain_constant(xloc, mesh), domain_constant(yloc, mesh)]
-            for (xloc, yloc) in turbine_locations
+            for (xloc, yloc) in mesh_seq.test_case_setup.turbine_locations
         ]
         farm_options.turbine_coordinates[-1][1] = yc  # last turbine is controlled
         options.discrete_tidal_turbine_farms["everywhere"] = [farm_options]
@@ -256,7 +261,7 @@ def get_qoi(mesh_seq, index):
         # NOTE: We also multiply by -1 so that if we minimise the functional, we
         #       maximise power (maximize is also available from pyadjoint but currently
         #       broken)
-        J_overall = qoi_scaling * (-J_power + J_reg)
+        J_overall = mesh_seq.test_case_setup.qoi_scaling * (-J_power + J_reg)
         # print(
         #     f"DEBUG: power={assemble(J_power)}, reg={assemble(J_reg)},"
         #     f" overall={assemble(J_overall)}"
@@ -277,9 +282,9 @@ def plot_setup(filename):
     axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
     axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
     axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
-    for xloc, yloc in turbine_locations[:3]:
+    for xloc, yloc in SingleParameterSetup.turbine_locations[:3]:
         add_patch(axes, xloc, yloc, "C0", "Fixed turbines")
-    xc, yc = turbine_locations[3]
+    xc, yc = SingleParameterSetup.turbine_locations[3]
     add_patch(axes, xc, yc, "C1", "Control turbine")
     axes.set_title("")
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
@@ -313,9 +318,9 @@ def plot_patches(mesh_seq, optimised, filename):
     """
     fig, axes = plt.subplots(figsize=(12, 5))
     mesh_seq.plot(fig=fig, axes=axes)
-    for xloc, yloc in turbine_locations[:3]:
+    for xloc, yloc in mesh_seq.test_case_setup.turbine_locations[:3]:
         add_patch(axes, xloc, yloc, "C0", "Fixed turbines")
-    xc, yc = turbine_locations[3]
+    xc, yc = mesh_seq.test_case_setup.turbine_locations[3]
     add_patch(axes, xc, yc, "C1", "Initial control turbine")
     add_patch(axes, xc, optimised, "C2", "Optimised control turbine")
     axes.set_title("")

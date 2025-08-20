@@ -8,7 +8,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from setup import qoi_scaling
+from setup import SingleParameterSetup
 
 from turbine_opt_adapt.experiment import get_latest_experiment_id
 
@@ -24,7 +24,7 @@ class ProgressPlotter:
         "dofs": "DoF count",
     }
     base = 1000  # Base value for target complexity
-    scaling = -1e-6 / qoi_scaling  # Scaling factor for QoIs and gradients
+    scaling = -1e-6 / SingleParameterSetup.qoi_scaling  # Scaling for QoIs and gradients
 
     def __init__(self, axes, x, y, experiment_id, base_n, n_range, targets):
         """Initialise the plotter.

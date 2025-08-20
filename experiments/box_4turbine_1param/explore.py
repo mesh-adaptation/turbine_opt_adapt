@@ -7,11 +7,11 @@ from firedrake.utility_meshes import RectangleMesh
 from goalie.adjoint import AdjointMeshSeq
 from goalie.time_partition import TimeInstant
 from setup import (
+    SingleParameterSetup,
     fields,
     get_initial_condition,
     get_qoi,
     get_solver,
-    turbine_locations,
 )
 
 # Add argparse for command-line arguments
@@ -26,6 +26,7 @@ output_dir = f"outputs/fixed_mesh_{n}"
 mesh = RectangleMesh(60 * 2**n, 25 * 2**n, 1200, 500)
 
 # Explore the parameter space and compute the corresponding cost function values
+turbine_locations = SingleParameterSetup.turbine_locations
 y1, y2 = turbine_locations[0][1], turbine_locations[1][1]
 controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
 qois = []
@@ -43,6 +44,7 @@ for i, control in enumerate(controls):
         get_qoi=get_qoi,
         qoi_type="steady",
     )
+    mesh_seq.test_case_setup = SingleParameterSetup
 
     # FIXME: get_checkpoints gives tiny QoI
     # mesh_seq.get_checkpoints(run_final_subinterval=True)

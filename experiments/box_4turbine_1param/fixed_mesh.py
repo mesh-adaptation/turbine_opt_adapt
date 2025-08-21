@@ -17,7 +17,6 @@ from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
 from setup import (
     SingleParameterSetup,
-    fields,
     get_initial_condition,
     get_qoi,
     plot_patches,
@@ -54,7 +53,7 @@ start_time = perf_counter()
 nx = np.round(60 * 2**n).astype(int)
 ny = np.round(25 * 2**n).astype(int)
 mesh_seq = AdjointMeshSeq(
-    TimeInstant(fields),
+    TimeInstant(SingleParameterSetup.get_fields()),
     RectangleMesh(nx, ny, 1200, 500),
     get_initial_condition=get_initial_condition,
     get_solver=get_solver,

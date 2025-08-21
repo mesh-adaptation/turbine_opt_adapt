@@ -6,12 +6,7 @@ import numpy as np
 from firedrake.utility_meshes import RectangleMesh
 from goalie.adjoint import AdjointMeshSeq
 from goalie.time_partition import TimeInstant
-from setup import (
-    SingleParameterSetup,
-    fields,
-    get_initial_condition,
-    get_qoi,
-)
+from setup import SingleParameterSetup, get_initial_condition, get_qoi
 
 from turbine_opt_adapt.solver import get_solver
 
@@ -38,7 +33,7 @@ for i, control in enumerate(controls):
         return get_initial_condition(*args, init_control=init_control)
 
     mesh_seq = AdjointMeshSeq(
-        TimeInstant(fields),
+        TimeInstant(SingleParameterSetup.get_fields()),
         mesh,
         get_initial_condition=get_ic,
         get_solver=get_solver,

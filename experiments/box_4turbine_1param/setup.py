@@ -2,10 +2,8 @@
 
 import matplotlib.pyplot as plt
 import ufl
-from finat.ufl import FiniteElement, MixedElement, VectorElement
 from firedrake.assemble import assemble
 from firedrake.function import Function
-from goalie.field import Field
 from thetis.utility import domain_constant
 
 from turbine_opt_adapt.plotting import add_patch
@@ -13,7 +11,6 @@ from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
 __all__ = [
     "SingleParameterSetup",
-    "fields",
     "get_initial_condition",
     "get_qoi",
     "plot_setup",
@@ -35,20 +32,7 @@ class SingleParameterSetup(TestCaseSetup):
     qoi_scaling = 100.0
 
 
-# TODO: Introduce a get_fields function in turbine_opt_adapt that automates this
-# Set up P1DGv-P1DG element
-p1dg_element = FiniteElement(
-    "Discontinuous Lagrange", ufl.triangle, 1, variant="equispaced"
-)
-p1dgv_element = VectorElement(p1dg_element, dim=2)
-p1dgvp1dg_element = MixedElement([p1dgv_element, p1dg_element])
-fields = [
-    Field("solution_2d", finite_element=p1dgvp1dg_element, unsteady=False),
-    Field("yc", family="Real", degree=0, unsteady=False, solved_for=False),
-]
-
-
-# TODO: Introduce a get_fields function in turbine_opt_adapt that automates this
+# TODO: Introduce a function in turbine_opt_adapt that automates this
 def get_initial_condition(mesh_seq, init_control=None):
     """Get the initial conditions for the single-parameter test case.
 
@@ -155,7 +139,7 @@ def plot_setup(filename):
     plt.savefig(filename, bbox_inches="tight")
 
 
-# TODO: Introduce a get_fields function in turbine_opt_adapt that automates this
+# TODO: Introduce a function in turbine_opt_adapt that automates this
 def plot_patches(mesh_seq, optimised, filename):
     """Plot the initial and final turbine locations over the mesh.
 

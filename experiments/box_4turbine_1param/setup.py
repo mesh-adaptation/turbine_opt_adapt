@@ -9,6 +9,7 @@ from goalie.field import Field
 from thetis.utility import domain_constant
 
 from turbine_opt_adapt.plotting import add_patch
+from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
 __all__ = [
     "SingleParameterSetup",
@@ -20,7 +21,7 @@ __all__ = [
 ]
 
 
-class SingleParameterSetup:
+class SingleParameterSetup(TestCaseSetup):
 
     """Class to hold parameters related to the single-parameter test case."""
 
@@ -32,19 +33,6 @@ class SingleParameterSetup:
     ]
     control_indices = {"yc": (3, 1)}
     qoi_scaling = 100.0
-
-    # TODO: Introduce a base class and move this there
-    @property
-    def initial_controls(cls):
-        """Get the initial control values.
-
-        :return: dictionary of initial control values
-        :rtype: dict[float]
-        """
-        return {
-            control: cls.turbine_locations[turbine][dim]
-            for control, (turbine, dim) in cls.control_indices.items()
-        }
 
 
 # TODO: Introduce a get_fields function in turbine_opt_adapt that automates this

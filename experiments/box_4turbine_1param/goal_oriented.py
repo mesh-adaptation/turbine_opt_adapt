@@ -29,11 +29,11 @@ from setup import (
     fields,
     get_initial_condition,
     get_qoi,
-    get_solver,
     plot_patches,
 )
 
 from turbine_opt_adapt.experiment import get_experiment_id
+from turbine_opt_adapt.solver import get_solver
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Run with goal-oriented adaptation.")

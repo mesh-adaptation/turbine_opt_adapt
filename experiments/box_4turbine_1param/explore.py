@@ -11,8 +11,9 @@ from setup import (
     fields,
     get_initial_condition,
     get_qoi,
-    get_solver,
 )
+
+from turbine_opt_adapt.solver import get_solver
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Explore parameter space by varying yc.")

@@ -59,8 +59,8 @@ mesh_seq = AdjointMeshSeq(
     get_solver=get_solver,
     get_qoi=get_qoi,
     qoi_type="steady",
+    test_case_setup=SingleParameterSetup,
 )
-mesh_seq.test_case_setup = SingleParameterSetup
 
 # Plot the problem setup
 if args.plot_setup:

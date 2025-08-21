@@ -96,8 +96,8 @@ mesh_seq = GoalOrientedMeshSeq(
     get_solver=get_solver,
     get_qoi=get_qoi,
     qoi_type="steady",
+    test_case_setup=SingleParameterSetup,
 )
-mesh_seq.test_case_setup = SingleParameterSetup
 
 # Solve the adjoint problem, computing gradients, and plot the x-velocity component of
 # both the forward and adjoint solutions

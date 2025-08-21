@@ -43,8 +43,8 @@ for i, control in enumerate(controls):
         get_solver=get_solver,
         get_qoi=get_qoi,
         qoi_type="steady",
+        test_case_setup=SingleParameterSetup,
     )
-    mesh_seq.test_case_setup = SingleParameterSetup
 
     # FIXME: get_checkpoints gives tiny QoI
     # mesh_seq.get_checkpoints(run_final_subinterval=True)

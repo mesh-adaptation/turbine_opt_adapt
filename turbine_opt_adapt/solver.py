@@ -186,7 +186,8 @@ def get_solver(mesh_seq):
             [domain_constant(xloc, mesh), domain_constant(yloc, mesh)]
             for (xloc, yloc) in mesh_seq.test_case_setup.turbine_locations
         ]
-        for control, (turbine, dim) in mesh_seq.test_case_setup.control_indices.items():
+        for control, turbine in mesh_seq.test_case_setup.control_turbines.items():
+            dim = mesh_seq.test_case_setup.control_dims[control]
             farm_options.turbine_coordinates[turbine][dim] = (
                 mesh_seq.field_functions[control]
             )

@@ -21,7 +21,8 @@ class SingleParameterSetup(TestCaseSetup):
         [450.0, 190.0],
         [750.0, 260.0],
     ]
-    control_indices = {"yc": (3, 1)}
+    control_turbines = {"yc": 3}
+    control_dims = {"yc": 1}
     qoi_scaling = 100.0
     initial_velocity = (1e-03, 0.0)
 

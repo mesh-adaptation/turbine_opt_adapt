@@ -13,7 +13,8 @@ class TestCaseSetup(abc.ABC):
     """Base class for holding parameters related to a turbine optimisation test case."""
 
     turbine_locations = []
-    control_indices = {}
+    control_turbines = {}
+    control_dims = {}
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
 
@@ -25,8 +26,8 @@ class TestCaseSetup(abc.ABC):
         :rtype: dict[float]
         """
         return {
-            control: cls.turbine_locations[turbine][dim]
-            for control, (turbine, dim) in cls.control_indices.items()
+            control: cls.turbine_locations[turbine][cls.control_dims[control]]
+            for control, turbine in cls.control_turbines.items()
         }
 
     @classmethod
@@ -44,9 +45,15 @@ class TestCaseSetup(abc.ABC):
         fields = [
             Field("solution_2d", finite_element=p1dgvp1dg_element, unsteady=False)
         ]
-        for control in cls.control_indices:
+        for control in cls.control_turbines:
             fields.append(
-                Field(control,family="Real", degree=0, unsteady=False, solved_for=False)
+                Field(
+                    control,
+                    family="Real",
+                    degree=0,
+                    unsteady=False,
+                    solved_for=False,
+                )
             )
         return fields
 
@@ -63,8 +70,8 @@ def get_initial_condition(mesh_seq):
     u.interpolate(ufl.as_vector(mesh_seq.test_case_setup.initial_velocity))
     eta.assign(0.0)
     ics = {"solution_2d": solution_2d}
-    for control in mesh_seq.test_case_setup.control_indices:
-        turbine, dim = mesh_seq.test_case_setup.control_indices[control]
+    for control, turbine in mesh_seq.test_case_setup.control_turbines.items():
+        dim = mesh_seq.test_case_setup.control_dims[control]
         ics[control] = Function(mesh_seq.function_spaces[control][0])
         ics[control].assign(mesh_seq.test_case_setup.turbine_locations[turbine][dim])
     return ics

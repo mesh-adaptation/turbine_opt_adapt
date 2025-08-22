@@ -43,8 +43,8 @@ max_control = critical_controls[max_index]
 max_qoi = critical_qois[max_index]
 print(f"Maximum QoI: {max_qoi} at Control: {max_control}")
 
-fixed_mesh_controls = np.load(f"outputs/fixed_mesh_{n}/controls.npy")
-fixed_mesh_qois = -np.load(f"outputs/fixed_mesh_{n}/qois.npy") * scaling
+fixed_mesh_controls = np.load(f"outputs/fixed_mesh_{n}/fixed_mesh_{n}_controls.npy")
+fixed_mesh_qois = -np.load(f"outputs/fixed_mesh_{n}/fixed_mesh_{n}_qois.npy") * scaling
 
 # Plot the trajectory with the maximum QoI highlighted
 fig, axes = plt.subplots()

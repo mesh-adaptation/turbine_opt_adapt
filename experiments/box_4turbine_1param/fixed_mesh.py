@@ -15,8 +15,9 @@ from goalie.adjoint import AdjointMeshSeq
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
-from setup import SingleParameterSetup, get_qoi, plot_patches, plot_setup
+from setup import SingleParameterSetup, get_qoi, plot_setup
 
+from turbine_opt_adapt.plotting import plot_patches
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
 
@@ -112,11 +113,10 @@ np.save(f"{output_dir}/{experiment_id}_qois.npy", optimiser.progress["qoi"])
 np.save(f"{output_dir}/{experiment_id}_gradients.npy", optimiser.progress["gradient"])
 
 if args.plot_fields:
-    # Plot the patches for the final positions
+    # Plot the patches for the final positions in relatively low resolution cases
     if n < 2:
-        plot_patches(
-            mesh_seq, optimiser.progress["control"][-1], f"{plot_dir}/patches.jpg"
-        )
+        optimised = {"yc": optimiser.progress["control"][-1]}
+        plot_patches(mesh_seq, optimised, f"{plot_dir}/patches.jpg")
 
     # Plot the x-velocity component of the forward solution for the final control
     u, eta = solutions["solution_2d"]["forward"][0][0].subfunctions

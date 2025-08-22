@@ -8,7 +8,7 @@ from thetis.utility import domain_constant
 from turbine_opt_adapt.plotting import add_patch
 from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
-__all__ = ["SingleParameterSetup", "get_qoi", "plot_setup", "plot_patches"]
+__all__ = ["SingleParameterSetup", "get_qoi", "plot_setup"]
 
 
 class SingleParameterSetup(TestCaseSetup):
@@ -27,6 +27,7 @@ class SingleParameterSetup(TestCaseSetup):
     initial_velocity = (1e-03, 0.0)
 
 
+# TODO: Separate regularisation into test case setup; generalise the rest
 def get_qoi(mesh_seq, index):
     """Get the quantity of interest (QoI) functional for the single-parameter test case.
 
@@ -77,21 +78,24 @@ def get_qoi(mesh_seq, index):
     return steady_qoi
 
 
+# TODO: Generalise and move to plotting module
+# def plot_setup(filename, test_case):
 def plot_setup(filename):
     """Plot the initial turbine locations.
 
     :arg filename: name of the file to save the plot
     :type filename: :class:`str`
     """
+    test_case = SingleParameterSetup
     fig, axes = plt.subplots(figsize=(12, 5))
     axes.plot([0, 0], [0, 500], color="C2", linewidth=3, label="Inflow boundary")
     axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
     axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
     axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
-    for xloc, yloc in SingleParameterSetup.turbine_locations[:3]:
-        add_patch(axes, xloc, yloc, "C0", "Fixed turbines")
-    xc, yc = SingleParameterSetup.turbine_locations[3]
-    add_patch(axes, xc, yc, "C1", "Control turbine")
+    for (x, y) in test_case.fixed_turbine_locations:
+        add_patch(axes, x, y, "C0", "Fixed turbines")
+    for (x, y) in test_case.control_turbine_locations:
+        add_patch(axes, x, y, "C1", "Control turbine")
     axes.set_title("")
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
@@ -100,37 +104,8 @@ def plot_setup(filename):
     axes.set_xlim([-eps, 1200 + eps])
     axes.set_ylim([-eps, 500 + eps])
     handles, labels = axes.get_legend_handles_labels()
-    handles = [handles[0], handles[1], handles[2], handles[-2], handles[-1]]
-    labels = [
-        "Inflow boundary",
-        "Outflow boundary",
-        "No-slip boundary",
-        labels[-2],
-        labels[-1],
-    ]
+    indices = [0, 1, 2, 4, 4 + SingleParameterSetup.num_fixed_turbines]
+    handles = [handles[i] for i in indices]
+    labels = [labels[i] for i in indices]
     axes.legend(handles, labels, loc="upper left")
-    plt.savefig(filename, bbox_inches="tight")
-
-
-# TODO: Introduce a function in turbine_opt_adapt that automates this
-def plot_patches(mesh_seq, optimised, filename):
-    """Plot the initial and final turbine locations over the mesh.
-
-    :arg mesh_seq: mesh sequence holding the mesh
-    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
-    :arg optimised: y-coordinate of the optimised turbine location
-    :type optimised: :class:`float`
-    :arg filename: name of the file to save the plot
-    :type filename: :class:`str`
-    """
-    fig, axes = plt.subplots(figsize=(12, 5))
-    mesh_seq.plot(fig=fig, axes=axes)
-    for xloc, yloc in mesh_seq.test_case_setup.turbine_locations[:3]:
-        add_patch(axes, xloc, yloc, "C0", "Fixed turbines")
-    xc, yc = mesh_seq.test_case_setup.turbine_locations[3]
-    add_patch(axes, xc, yc, "C1", "Initial control turbine")
-    add_patch(axes, xc, optimised, "C2", "Optimised control turbine")
-    axes.set_title("")
-    handles, labels = axes.get_legend_handles_labels()
-    axes.legend(handles[-3:], labels[-3:], loc="upper left")
     plt.savefig(filename, bbox_inches="tight")

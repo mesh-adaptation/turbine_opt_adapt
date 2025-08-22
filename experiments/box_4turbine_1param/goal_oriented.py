@@ -24,9 +24,10 @@ from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
 from matplotlib import ticker
-from setup import SingleParameterSetup, get_qoi, plot_patches
+from setup import SingleParameterSetup, get_qoi
 
 from turbine_opt_adapt.experiment import get_experiment_id
+from turbine_opt_adapt.plotting import plot_patches
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
 
@@ -220,11 +221,8 @@ np.save(f"{output_dir}/{config_str}_gradients.npy", optimiser.progress["gradient
 
 if args.plot_fields:
     # Plot the patches for the final positions
-    plot_patches(
-        mesh_seq,
-        optimiser.progress["control"][-1],
-        f"{plot_dir}/{config_str}_patches.jpg",
-    )
+    optimised = {"yc": optimiser.progress["control"][-1]}
+    plot_patches(mesh_seq, optimised, f"{plot_dir}/{config_str}_patches.jpg")
 
     # Plot the x-velocity component of the forward solution for the final control/mesh
     u, eta = solutions["solution_2d"]["forward"][0][0].subfunctions

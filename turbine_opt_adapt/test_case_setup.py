@@ -18,6 +18,64 @@ class TestCaseSetup(abc.ABC):
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
 
+    @classmethod
+    @property
+    def num_turbines(cls):
+        """Get the number of turbines.
+
+        :return: number of turbines
+        :rtype: int
+        """
+        return len(cls.turbine_locations)
+
+    @classmethod
+    @property
+    def control_turbine_locations(cls):
+        """Get the locations of the control turbines.
+
+        :return: list of control locations
+        :rtype: list[float]
+        """
+        return [
+            cls.turbine_locations[turbine]
+            for turbine in cls.control_turbines.values()
+        ]
+
+    @classmethod
+    @property
+    def num_control_turbines(cls):
+        """Get the number of control turbines.
+
+        :return: number of control turbines
+        :rtype: int
+        """
+        return len(cls.control_turbines)
+
+    @classmethod
+    @property
+    def fixed_turbine_locations(cls):
+        """Get the locations of the fixed turbines.
+
+        :return: list of fixed turbine locations
+        :rtype: list[tuple[float, float]]
+        """
+        return [
+            location
+            for turbine, location in enumerate(cls.turbine_locations)
+            if turbine not in cls.control_turbines.values()
+        ]
+
+    @classmethod
+    @property
+    def num_fixed_turbines(cls):
+        """Get the number of fixed turbines.
+
+        :return: number of fixed turbines
+        :rtype: int
+        """
+        return cls.num_turbines - cls.num_control_turbines
+
+    @classmethod
     @property
     def initial_controls(cls):
         """Get the initial control values.

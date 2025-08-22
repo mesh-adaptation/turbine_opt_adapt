@@ -3,19 +3,12 @@
 import matplotlib.pyplot as plt
 import ufl
 from firedrake.assemble import assemble
-from firedrake.function import Function
 from thetis.utility import domain_constant
 
 from turbine_opt_adapt.plotting import add_patch
 from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
-__all__ = [
-    "SingleParameterSetup",
-    "get_initial_condition",
-    "get_qoi",
-    "plot_setup",
-    "plot_patches",
-]
+__all__ = ["SingleParameterSetup", "get_qoi", "plot_setup", "plot_patches"]
 
 
 class SingleParameterSetup(TestCaseSetup):
@@ -23,35 +16,14 @@ class SingleParameterSetup(TestCaseSetup):
     """Class to hold parameters related to the single-parameter test case."""
 
     turbine_locations = [
-        (450.0, 250.0),
-        (450.0, 310.0),
-        (450.0, 190.0),
-        (750.0, 260.0),
+        [450.0, 250.0],
+        [450.0, 310.0],
+        [450.0, 190.0],
+        [750.0, 260.0],
     ]
     control_indices = {"yc": (3, 1)}
     qoi_scaling = 100.0
-
-
-# TODO: Introduce a function in turbine_opt_adapt that automates this
-def get_initial_condition(mesh_seq, init_control=None):
-    """Get the initial conditions for the single-parameter test case.
-
-    :param mesh_seq: mesh sequence holding the mesh
-    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
-    :param init_control: initial y-coordinate of the control turbine, defaults to None
-    :type init_control: :class:`float`, optional
-    :return: dictionary with initial conditions for the solution and control variable
-    :rtype: dict
-    """
-    solution_2d = Function(mesh_seq.function_spaces["solution_2d"][0])
-    u, eta = solution_2d.subfunctions
-    u.interpolate(ufl.as_vector((1e-03, 0.0)))
-    eta.assign(0.0)
-    if init_control is None:
-        turbine, dim = mesh_seq.test_case_setup.control_indices["yc"]
-        init_control = mesh_seq.test_case_setup.turbine_locations[turbine][dim]
-    yc = Function(mesh_seq.function_spaces["yc"][0]).assign(init_control)
-    return {"solution_2d": solution_2d, "yc": yc}
+    initial_velocity = (1e-03, 0.0)
 
 
 def get_qoi(mesh_seq, index):

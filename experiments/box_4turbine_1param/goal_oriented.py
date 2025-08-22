@@ -24,15 +24,11 @@ from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
 from matplotlib import ticker
-from setup import (
-    SingleParameterSetup,
-    get_initial_condition,
-    get_qoi,
-    plot_patches,
-)
+from setup import SingleParameterSetup, get_qoi, plot_patches
 
 from turbine_opt_adapt.experiment import get_experiment_id
 from turbine_opt_adapt.solver import get_solver
+from turbine_opt_adapt.test_case_setup import get_initial_condition
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Run with goal-oriented adaptation.")

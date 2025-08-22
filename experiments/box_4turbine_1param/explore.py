@@ -6,9 +6,10 @@ import numpy as np
 from firedrake.utility_meshes import RectangleMesh
 from goalie.adjoint import AdjointMeshSeq
 from goalie.time_partition import TimeInstant
-from setup import SingleParameterSetup, get_initial_condition, get_qoi
+from setup import SingleParameterSetup, get_qoi
 
 from turbine_opt_adapt.solver import get_solver
+from turbine_opt_adapt.test_case_setup import get_initial_condition
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Explore parameter space by varying yc.")
@@ -27,15 +28,13 @@ y1, y2 = turbine_locations[0][1], turbine_locations[1][1]
 controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
 qois = []
 for i, control in enumerate(controls):
-
-    def get_ic(*args, init_control=control):
-        """Get the initial condition with the specified control."""
-        return get_initial_condition(*args, init_control=init_control)
+    turbine, dim = SingleParameterSetup.control_indices["yc"]
+    SingleParameterSetup.turbine_locations[turbine][dim] = control
 
     mesh_seq = AdjointMeshSeq(
         TimeInstant(SingleParameterSetup.get_fields()),
         mesh,
-        get_initial_condition=get_ic,
+        get_initial_condition=get_initial_condition,
         get_solver=get_solver,
         get_qoi=get_qoi,
         qoi_type="steady",

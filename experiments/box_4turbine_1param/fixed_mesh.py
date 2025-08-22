@@ -15,15 +15,10 @@ from goalie.adjoint import AdjointMeshSeq
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
-from setup import (
-    SingleParameterSetup,
-    get_initial_condition,
-    get_qoi,
-    plot_patches,
-    plot_setup,
-)
+from setup import SingleParameterSetup, get_qoi, plot_patches, plot_setup
 
 from turbine_opt_adapt.solver import get_solver
+from turbine_opt_adapt.test_case_setup import get_initial_condition
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Plot progress of controls and QoIs.")

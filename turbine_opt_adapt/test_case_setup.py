@@ -3,16 +3,19 @@ import abc
 
 import ufl
 from finat.ufl import FiniteElement, MixedElement, VectorElement
+from firedrake.function import Function
 from goalie.field import Field
 
+__all__ = ["TestCaseSetup", "get_initial_condition"]
 
 class TestCaseSetup(abc.ABC):
 
-    """Base class for holding parameters related to a particular test case."""
+    """Base class for holding parameters related to a turbine optimisation test case."""
 
     turbine_locations = []
     control_indices = {}
     qoi_scaling = 1.0
+    initial_velocity = (0.0, 0.0)
 
     @property
     def initial_controls(cls):
@@ -46,3 +49,22 @@ class TestCaseSetup(abc.ABC):
                 Field(control,family="Real", degree=0, unsteady=False, solved_for=False)
             )
         return fields
+
+def get_initial_condition(mesh_seq):
+    """Get the initial conditions for a turbine optimisation test case.
+
+    :param mesh_seq: mesh sequence holding the mesh
+    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+    :return: dictionary with initial conditions for the solution and control variable
+    :rtype: dict
+    """
+    solution_2d = Function(mesh_seq.function_spaces["solution_2d"][0])
+    u, eta = solution_2d.subfunctions
+    u.interpolate(ufl.as_vector(mesh_seq.test_case_setup.initial_velocity))
+    eta.assign(0.0)
+    ics = {"solution_2d": solution_2d}
+    for control in mesh_seq.test_case_setup.control_indices:
+        turbine, dim = mesh_seq.test_case_setup.control_indices[control]
+        ics[control] = Function(mesh_seq.function_spaces[control][0])
+        ics[control].assign(mesh_seq.test_case_setup.turbine_locations[turbine][dim])
+    return ics

@@ -3,7 +3,39 @@
 import matplotlib.pyplot as plt
 from matplotlib import patches
 
-__all__ = ["add_patch", "plot_patches"]
+__all__ = ["plot_box_setup", "plot_patches"]
+
+
+def plot_box_setup(filename, test_case):
+    """Plot the initial turbine locations for problems in box domains.
+
+    :arg filename: name of the file to save the plot
+    :type filename: :class:`str`
+    :arg test_case: class defining test case
+    :type test_case: :class:`~turbine_opt_adapt.test_case_setup.TestCaseSetup`
+    """
+    fig, axes = plt.subplots(figsize=(12, 5))
+    axes.plot([0, 0], [0, 500], color="C2", linewidth=3, label="Inflow boundary")
+    axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
+    axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
+    axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
+    for (x, y) in test_case.fixed_turbine_locations:
+        add_patch(axes, x, y, "C0", "Fixed turbines")
+    for (x, y) in test_case.control_turbine_locations:
+        add_patch(axes, x, y, "C1", "Control turbine")
+    axes.set_title("")
+    axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
+    axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
+    axes.axis(True)
+    eps = 5
+    axes.set_xlim([-eps, 1200 + eps])
+    axes.set_ylim([-eps, 500 + eps])
+    handles, labels = axes.get_legend_handles_labels()
+    indices = [0, 1, 2, 4, 4 + test_case.num_fixed_turbines]
+    handles = [handles[i] for i in indices]
+    labels = [labels[i] for i in indices]
+    axes.legend(handles, labels, loc="upper left")
+    plt.savefig(filename, bbox_inches="tight")
 
 
 def add_patch(axes, xloc, yloc, colour, label, diameter=20.0):

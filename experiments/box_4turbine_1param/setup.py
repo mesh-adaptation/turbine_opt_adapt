@@ -1,14 +1,12 @@
 """Module containing setup functions for the single-parameter test case."""
 
-import matplotlib.pyplot as plt
 import ufl
 from firedrake.assemble import assemble
 from thetis.utility import domain_constant
 
-from turbine_opt_adapt.plotting import add_patch
 from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
-__all__ = ["SingleParameterSetup", "get_qoi", "plot_setup"]
+__all__ = ["SingleParameterSetup", "get_qoi"]
 
 
 class SingleParameterSetup(TestCaseSetup):
@@ -76,36 +74,3 @@ def get_qoi(mesh_seq, index):
         return J_overall
 
     return steady_qoi
-
-
-# TODO: Generalise and move to plotting module
-# def plot_setup(filename, test_case):
-def plot_setup(filename):
-    """Plot the initial turbine locations.
-
-    :arg filename: name of the file to save the plot
-    :type filename: :class:`str`
-    """
-    test_case = SingleParameterSetup
-    fig, axes = plt.subplots(figsize=(12, 5))
-    axes.plot([0, 0], [0, 500], color="C2", linewidth=3, label="Inflow boundary")
-    axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
-    axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
-    axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
-    for (x, y) in test_case.fixed_turbine_locations:
-        add_patch(axes, x, y, "C0", "Fixed turbines")
-    for (x, y) in test_case.control_turbine_locations:
-        add_patch(axes, x, y, "C1", "Control turbine")
-    axes.set_title("")
-    axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
-    axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
-    axes.axis(True)
-    eps = 5
-    axes.set_xlim([-eps, 1200 + eps])
-    axes.set_ylim([-eps, 500 + eps])
-    handles, labels = axes.get_legend_handles_labels()
-    indices = [0, 1, 2, 4, 4 + SingleParameterSetup.num_fixed_turbines]
-    handles = [handles[i] for i in indices]
-    labels = [labels[i] for i in indices]
-    axes.legend(handles, labels, loc="upper left")
-    plt.savefig(filename, bbox_inches="tight")

@@ -15,9 +15,9 @@ from goalie.adjoint import AdjointMeshSeq
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
-from setup import SingleParameterSetup, get_qoi, plot_setup
+from setup import SingleParameterSetup, get_qoi
 
-from turbine_opt_adapt.plotting import plot_patches
+from turbine_opt_adapt.plotting import plot_box_setup, plot_patches
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
 
@@ -60,7 +60,7 @@ mesh_seq = AdjointMeshSeq(
 
 # Plot the problem setup
 if args.plot_setup:
-    plot_setup("plots/setup.jpg")
+    plot_box_setup("plots/setup.jpg", SingleParameterSetup)
 
 # Run a Taylor test to check the gradient is computed correctly
 if args.taylor_test:

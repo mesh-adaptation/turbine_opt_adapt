@@ -24,10 +24,11 @@ from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
 from matplotlib import ticker
-from setup import SingleParameterSetup, get_qoi
+from setup import SingleParameterSetup
 
 from turbine_opt_adapt.experiment import get_experiment_id
 from turbine_opt_adapt.plotting import plot_patches
+from turbine_opt_adapt.qoi import get_qoi
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
 

@@ -1,0 +1,31 @@
+"""Module containing a QoI getter based on power output."""
+
+import ufl
+
+__all__ = ["get_qoi"]
+
+def get_qoi(mesh_seq, index):
+    """Get the quantity of interest (QoI) functional for the single-parameter test case.
+
+    :param mesh_seq: mesh sequence holding the mesh
+    :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+    :param index: index of the mesh in the sequence
+    :type index: :class:`int`
+    :return: function that computes the QoI
+    :rtype: function
+    """
+
+    def steady_qoi():
+        u, eta = ufl.split(mesh_seq.field_functions["solution_2d"])
+        farm = mesh_seq.tidal_farm
+
+        # Power output contribution
+        # NOTE: Negative so that minimising the functional maximises power (maximize is
+        #       also available from pyadjoint but currently broken)
+        J_power = -farm.turbine.power(u, eta) * farm.turbine_density * ufl.dx
+
+        # Add the regularisation contribution
+        J_reg = mesh_seq.test_case_setup.regularisation_term(mesh_seq, index)
+        return mesh_seq.test_case_setup.qoi_scaling * (J_power + J_reg)
+
+    return steady_qoi

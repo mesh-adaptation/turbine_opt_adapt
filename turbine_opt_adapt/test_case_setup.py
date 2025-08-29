@@ -115,6 +115,21 @@ class TestCaseSetup(abc.ABC):
             )
         return fields
 
+    @classmethod
+    @abc.abstractmethod
+    def regularisation_term(cls, mesh_seq, index):
+        """Add a regularisation term for constraining the control.
+
+        To be implemented in subclass.
+
+        :param mesh_seq: mesh sequence holding the mesh
+        :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+        :param index: index of the mesh in the sequence
+        :type index: :class:`int`
+        :return: regularisation term
+        :rtype: :class:`~.ufl.Expr`
+        """
+
 def get_initial_condition(mesh_seq):
     """Get the initial conditions for a turbine optimisation test case.
 

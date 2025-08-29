@@ -6,8 +6,9 @@ import numpy as np
 from firedrake.utility_meshes import RectangleMesh
 from goalie.adjoint import AdjointMeshSeq
 from goalie.time_partition import TimeInstant
-from setup import SingleParameterSetup, get_qoi
+from setup import SingleParameterSetup
 
+from turbine_opt_adapt.qoi import get_qoi
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
 

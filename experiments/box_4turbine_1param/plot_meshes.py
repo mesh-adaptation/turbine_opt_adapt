@@ -3,6 +3,8 @@
 Run `python3 plot_meshes.py --help` to see the available command-line options.
 """
 
+# TODO: Generalise for other experiments
+
 import argparse
 import os
 

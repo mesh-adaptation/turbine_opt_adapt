@@ -151,20 +151,15 @@ plot_dir = f"plots/{exp_id}"
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
-for label in ProgressPlotter.labels:
+for i, label in enumerate(ProgressPlotter.labels):
     fig, axes = plt.subplots()
     plotter = ProgressPlotter(axes, "timings", label, exp_id, args.n, n_range, targets)
     plotter.plot_all()
-    legend_handles, _ = axes.get_legend_handles_labels()
+    handles, labels = axes.get_legend_handles_labels()
     plt.savefig(f"{plot_dir}/{label}.jpg", bbox_inches="tight")
 
-# Create a separate figure for the legend
-legend_fig = plt.figure()
-legend_fig.legend(
-    legend_handles,
-    ProgressPlotter.labels.values(),
-    loc="center",
-    frameon=False,
-    ncol=len(ProgressPlotter.labels),
-)
-legend_fig.savefig(f"{plot_dir}/legend.jpg", bbox_inches="tight")
+    if i == 0:
+        # Save the legend separately
+        fig = plt.figure()
+        fig.legend(handles, labels, loc="center", frameon=False, ncol=3)
+        fig.savefig(f"{plot_dir}/legend.jpg", bbox_inches="tight")

@@ -38,7 +38,7 @@ class TestCaseSetup(abc.ABC):
         """
         return [
             cls.initial_turbine_coordinates[turbine]
-            for turbine in cls.control_turbines.values()
+            for turbine in set(cls.control_turbines.values())
         ]
 
     @classmethod

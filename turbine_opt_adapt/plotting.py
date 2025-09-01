@@ -20,9 +20,9 @@ def plot_box_setup(filename, test_case):
     axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
     axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
     axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
-    for (x, y) in test_case.fixed_turbine_locations:
+    for (x, y) in test_case.fixed_turbine_coordinates:
         add_patch(axes, x, y, "C0", "Fixed turbines")
-    for (x, y) in test_case.control_turbine_locations:
+    for (x, y) in test_case.initial_control_turbine_coordinates:
         add_patch(axes, x, y, "C1", "Control turbine")
     axes.set_title("")
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
@@ -81,13 +81,13 @@ def plot_patches(mesh_seq, optimised, filename):
     test_case = mesh_seq.test_case_setup
     fig, axes = plt.subplots(figsize=(12, 5))
     mesh_seq.plot(fig=fig, axes=axes)
-    for (x, y) in test_case.fixed_turbine_locations:
+    for (x, y) in test_case.fixed_turbine_coordinates:
         add_patch(axes, x, y, "C0", "Fixed turbines")
-    for (x, y) in test_case.control_turbine_locations:
+    for (x, y) in test_case.initial_control_turbine_coordinates:
         add_patch(axes, x, y, "C1", "Initial control turbines")
     for control, value in optimised.items():
         turbine = test_case.control_turbines[control]
-        xy = test_case.turbine_locations[turbine]
+        xy = test_case.initial_turbine_coordinates[turbine]
         xy[test_case.control_dims[control]] = value
         x, y = xy
         add_patch(axes, x, y, "C2", "Optimised control turbines")

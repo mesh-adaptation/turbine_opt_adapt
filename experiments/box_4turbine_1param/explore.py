@@ -24,13 +24,13 @@ output_dir = f"outputs/fixed_mesh_{n}"
 mesh = RectangleMesh(60 * 2**n, 25 * 2**n, 1200, 500)
 
 # Explore the parameter space and compute the corresponding cost function values
-turbine_locations = SingleParameterSetup.turbine_locations
-y1, y2 = turbine_locations[0][1], turbine_locations[1][1]
+initial_turbine_coordinates = SingleParameterSetup.initial_turbine_coordinates
+y1, y2 = initial_turbine_coordinates[0][1], initial_turbine_coordinates[1][1]
 controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
 qois = []
 for i, control in enumerate(controls):
     turbine, dim = SingleParameterSetup.control_indices["yc"]
-    SingleParameterSetup.turbine_locations[turbine][dim] = control
+    SingleParameterSetup.initial_turbine_coordinates[turbine][dim] = control
 
     mesh_seq = AdjointMeshSeq(
         TimeInstant(SingleParameterSetup.get_fields()),

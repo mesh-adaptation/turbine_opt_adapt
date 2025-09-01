@@ -12,7 +12,7 @@ class TestCaseSetup(abc.ABC):
 
     """Base class for holding parameters related to a turbine optimisation test case."""
 
-    turbine_locations = []
+    initial_turbine_coordinates = []
     control_turbines = {}
     control_dims = {}
     qoi_scaling = 1.0
@@ -26,18 +26,18 @@ class TestCaseSetup(abc.ABC):
         :return: number of turbines
         :rtype: int
         """
-        return len(cls.turbine_locations)
+        return len(cls.initial_turbine_coordinates)
 
     @classmethod
     @property
-    def control_turbine_locations(cls):
+    def initial_control_turbine_coordinates(cls):
         """Get the locations of the control turbines.
 
         :return: list of control locations
         :rtype: list[float]
         """
         return [
-            cls.turbine_locations[turbine]
+            cls.initial_turbine_coordinates[turbine]
             for turbine in cls.control_turbines.values()
         ]
 
@@ -53,7 +53,7 @@ class TestCaseSetup(abc.ABC):
 
     @classmethod
     @property
-    def fixed_turbine_locations(cls):
+    def fixed_turbine_coordinates(cls):
         """Get the locations of the fixed turbines.
 
         :return: list of fixed turbine locations
@@ -61,7 +61,7 @@ class TestCaseSetup(abc.ABC):
         """
         return [
             location
-            for turbine, location in enumerate(cls.turbine_locations)
+            for turbine, location in enumerate(cls.initial_turbine_coordinates)
             if turbine not in cls.control_turbines.values()
         ]
 
@@ -84,7 +84,7 @@ class TestCaseSetup(abc.ABC):
         :rtype: dict[float]
         """
         return {
-            control: cls.turbine_locations[turbine][cls.control_dims[control]]
+            control: cls.initial_turbine_coordinates[turbine][cls.control_dims[control]]
             for control, turbine in cls.control_turbines.items()
         }
 
@@ -146,5 +146,5 @@ def get_initial_condition(mesh_seq):
     for control, turbine in mesh_seq.test_case_setup.control_turbines.items():
         dim = mesh_seq.test_case_setup.control_dims[control]
         ics[control] = Function(mesh_seq.function_spaces[control][0])
-        ics[control].assign(mesh_seq.test_case_setup.turbine_locations[turbine][dim])
+        ics[control].assign(mesh_seq.test_case_setup.initial_turbine_coordinates[turbine][dim])
     return ics

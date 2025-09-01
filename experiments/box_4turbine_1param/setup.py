@@ -13,8 +13,7 @@ class SingleParameterSetup(TestCaseSetup):
 
     """Class to hold parameters related to the single-parameter test case."""
 
-    # TODO: Avoid duplication - turbine coordinates also in farm_options
-    turbine_locations = [
+    initial_turbine_coordinates = [
         [450.0, 250.0],
         [450.0, 310.0],
         [450.0, 190.0],

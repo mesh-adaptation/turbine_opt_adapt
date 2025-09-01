@@ -184,7 +184,7 @@ def get_solver(mesh_seq):
         farm_options.upwind_correction = False
         farm_options.turbine_coordinates = [
             [domain_constant(xloc, mesh), domain_constant(yloc, mesh)]
-            for (xloc, yloc) in mesh_seq.test_case_setup.turbine_locations
+            for (xloc, yloc) in mesh_seq.test_case_setup.initial_turbine_coordinates
         ]
         for control, turbine in mesh_seq.test_case_setup.control_turbines.items():
             dim = mesh_seq.test_case_setup.control_dims[control]

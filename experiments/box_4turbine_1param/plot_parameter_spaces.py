@@ -8,13 +8,13 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import CubicSpline
-from setup import SingleParameterSetup
+from setup import OneParameterSetup
 
 plot_dir = "plots"
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 
-scaling = 1e-6 / SingleParameterSetup.qoi_scaling
+scaling = 1e-6 / OneParameterSetup.qoi_scaling
 
 # Plot the trajectory with the maximum QoIs highlighted
 fig, axes = plt.subplots()

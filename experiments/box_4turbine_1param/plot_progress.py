@@ -7,7 +7,7 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
-from setup import SingleParameterSetup
+from setup import OneParameterSetup
 
 from turbine_opt_adapt.experiment import get_latest_experiment_id
 from turbine_opt_adapt.plotting import ProgressPlotter
@@ -30,7 +30,7 @@ if not os.path.exists(plot_dir):
 for i, label in enumerate(("controls", "qois", "gradients", "dofs")):
     fig, axes = plt.subplots()
     plotter = ProgressPlotter(
-        SingleParameterSetup,
+        OneParameterSetup,
         axes,
         "timings",
         label,

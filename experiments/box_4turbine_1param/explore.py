@@ -6,7 +6,7 @@ import numpy as np
 from firedrake.utility_meshes import RectangleMesh
 from goalie.adjoint import AdjointMeshSeq
 from goalie.time_partition import TimeInstant
-from setup import SingleParameterSetup
+from setup import OneParameterSetup
 
 from turbine_opt_adapt.qoi import get_qoi
 from turbine_opt_adapt.solver import get_solver
@@ -24,22 +24,22 @@ output_dir = f"outputs/fixed_mesh_{n}"
 mesh = RectangleMesh(60 * 2**n, 25 * 2**n, 1200, 500)
 
 # Explore the parameter space and compute the corresponding cost function values
-initial_turbine_coordinates = SingleParameterSetup.initial_turbine_coordinates
+initial_turbine_coordinates = OneParameterSetup.initial_turbine_coordinates
 y1, y2 = initial_turbine_coordinates[0][1], initial_turbine_coordinates[1][1]
 controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
 qois = []
 for i, control in enumerate(controls):
-    turbine, dim = SingleParameterSetup.control_indices["yc"]
-    SingleParameterSetup.initial_turbine_coordinates[turbine][dim] = control
+    turbine, dim = OneParameterSetup.control_indices["yc"]
+    OneParameterSetup.initial_turbine_coordinates[turbine][dim] = control
 
     mesh_seq = AdjointMeshSeq(
-        TimeInstant(SingleParameterSetup.get_fields()),
+        TimeInstant(OneParameterSetup.get_fields()),
         mesh,
         get_initial_condition=get_initial_condition,
         get_solver=get_solver,
         get_qoi=get_qoi,
         qoi_type="steady",
-        test_case_setup=SingleParameterSetup,
+        test_case_setup=OneParameterSetup,
     )
 
     # FIXME: get_checkpoints gives tiny QoI

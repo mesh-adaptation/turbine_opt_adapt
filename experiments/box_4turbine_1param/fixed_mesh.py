@@ -1,4 +1,4 @@
-"""Run the single-parameter test case on a fixed mesh.
+"""Run the one-parameter test case on a fixed mesh.
 
 Run `python3 fixed_mesh.py --help` to see the available command-line options.
 """
@@ -15,7 +15,7 @@ from goalie.adjoint import AdjointMeshSeq
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.time_partition import TimeInstant
-from setup import SingleParameterSetup
+from setup import OneParameterSetup
 
 from turbine_opt_adapt.plotting import plot_box_setup, plot_patches
 from turbine_opt_adapt.qoi import get_qoi
@@ -50,18 +50,18 @@ start_time = perf_counter()
 nx = np.round(60 * 2**n).astype(int)
 ny = np.round(25 * 2**n).astype(int)
 mesh_seq = AdjointMeshSeq(
-    TimeInstant(SingleParameterSetup.get_fields()),
+    TimeInstant(OneParameterSetup.get_fields()),
     RectangleMesh(nx, ny, 1200, 500),
     get_initial_condition=get_initial_condition,
     get_solver=get_solver,
     get_qoi=get_qoi,
     qoi_type="steady",
-    test_case_setup=SingleParameterSetup,
+    test_case_setup=OneParameterSetup,
 )
 
 # Plot the problem setup
 if args.plot_setup:
-    plot_box_setup("plots/setup.jpg", SingleParameterSetup)
+    plot_box_setup("plots/setup.jpg", OneParameterSetup)
 
 # Run a Taylor test to check the gradient is computed correctly
 if args.taylor_test:

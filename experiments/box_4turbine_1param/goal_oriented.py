@@ -1,4 +1,4 @@
-"""Run the single-parameter test case with goal-oriented adaptation.
+"""Run the one-parameter test case with goal-oriented adaptation.
 
 Run `python3 goal_oriented.py --help` to see the available command-line options.
 """
@@ -24,7 +24,7 @@ from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
 from goalie.time_partition import TimeInstant
 from matplotlib import ticker
-from setup import SingleParameterSetup
+from setup import OneParameterSetup
 
 from turbine_opt_adapt.experiment import get_experiment_id
 from turbine_opt_adapt.plotting import plot_patches
@@ -87,13 +87,13 @@ start_time = perf_counter()
 nx = np.round(60 * 2**n).astype(int)
 ny = np.round(25 * 2**n).astype(int)
 mesh_seq = GoalOrientedMeshSeq(
-    TimeInstant(SingleParameterSetup.get_fields()),
+    TimeInstant(OneParameterSetup.get_fields()),
     RectangleMesh(nx, ny, 1200, 500),
     get_initial_condition=get_initial_condition,
     get_solver=get_solver,
     get_qoi=get_qoi,
     qoi_type="steady",
-    test_case_setup=SingleParameterSetup,
+    test_case_setup=OneParameterSetup,
 )
 
 # Solve the adjoint problem, computing gradients, and plot the x-velocity component of

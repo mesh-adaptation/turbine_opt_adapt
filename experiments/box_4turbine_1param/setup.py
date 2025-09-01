@@ -1,4 +1,4 @@
-"""Module containing setup functions for the single-parameter test case."""
+"""Module containing setup functions for the one-parameter test case."""
 
 import ufl
 from firedrake.assemble import assemble
@@ -6,12 +6,12 @@ from thetis.utility import domain_constant
 
 from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
-__all__ = ["SingleParameterSetup"]
+__all__ = ["OneParameterSetup"]
 
 
-class SingleParameterSetup(TestCaseSetup):
+class OneParameterSetup(TestCaseSetup):
 
-    """Class to hold parameters related to the single-parameter test case."""
+    """Class to hold parameters related to the one-parameter test case."""
 
     initial_turbine_coordinates = [
         [450.0, 250.0],

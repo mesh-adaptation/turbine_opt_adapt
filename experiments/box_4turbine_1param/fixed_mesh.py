@@ -109,17 +109,17 @@ with open(f"{output_dir}/cputime.txt", "w") as f:
 # Write the optimiser progress to file
 np.save(f"{output_dir}/{experiment_id}_timings.npy", optimiser.progress["cputime"])
 np.save(f"{output_dir}/{experiment_id}_dofs.npy", optimiser.progress["dofs"])
-np.save(f"{output_dir}/{experiment_id}_controls.npy", optimiser.progress["control"])
+np.save(f"{output_dir}/{experiment_id}_controls.npy", optimiser.progress["controls"])
 np.save(f"{output_dir}/{experiment_id}_qois.npy", optimiser.progress["qoi"])
-np.save(f"{output_dir}/{experiment_id}_gradients.npy", optimiser.progress["gradient"])
+np.save(f"{output_dir}/{experiment_id}_gradients.npy", optimiser.progress["gradients"])
 
 if args.plot_fields:
     # Plot the patches for the final positions in relatively low resolution cases
     if n < 2:
-        optimised = {"yc": optimiser.progress["control"][-1]}
+        optimised = {"yc": optimiser.progress["controls"][-1]}
         plot_patches(mesh_seq, optimised, f"{plot_dir}/patches.jpg")
 
-    # Plot the x-velocity component of the forward solution for the final control
+    # Plot the x-velocity component of the forward solution for the final controls
     u, eta = solutions["solution_2d"]["forward"][0][0].subfunctions
     fig, axes = plt.subplots(figsize=(12, 5))
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")

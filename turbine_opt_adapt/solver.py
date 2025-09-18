@@ -186,11 +186,12 @@ def get_solver(mesh_seq):
             [domain_constant(xloc, mesh), domain_constant(yloc, mesh)]
             for (xloc, yloc) in mesh_seq.test_case_setup.initial_turbine_coordinates
         ]
-        for control, turbine in mesh_seq.test_case_setup.control_turbines.items():
-            dim = mesh_seq.test_case_setup.control_dims[control]
-            farm_options.turbine_coordinates[turbine][dim] = (
-                mesh_seq.field_functions[control]
-            )
+        for turbine, controls in mesh_seq.test_case_setup.control_turbines.items():
+            for control in controls:
+                dim = mesh_seq.test_case_setup.control_dims[control]
+                farm_options.turbine_coordinates[turbine][dim] = (
+                    mesh_seq.field_functions[control]
+                )
         options.discrete_tidal_turbine_farms["everywhere"] = [farm_options]
 
         # Apply initial conditions and solve

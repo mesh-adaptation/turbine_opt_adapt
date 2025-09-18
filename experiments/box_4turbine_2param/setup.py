@@ -19,7 +19,7 @@ class TwoParameterSetup(TestCaseSetup):
         [450.0, 190.0],
         [750.0, 260.0],
     ]
-    control_turbines = {"xc": 3, "yc": 3}
+    control_turbines = {3: ("xc", "yc")}
     control_dims = {"xc": 0, "yc": 1}
     # Rescale the functional such that the gradients are ~ order magnitude 1
     qoi_scaling = 100.0

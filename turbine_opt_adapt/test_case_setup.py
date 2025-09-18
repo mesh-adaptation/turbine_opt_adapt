@@ -38,7 +38,7 @@ class TestCaseSetup(abc.ABC):
         """
         return [
             cls.initial_turbine_coordinates[turbine]
-            for turbine in set(cls.control_turbines.values())
+            for turbine in cls.control_turbines
         ]
 
     @classmethod
@@ -62,7 +62,7 @@ class TestCaseSetup(abc.ABC):
         return [
             location
             for turbine, location in enumerate(cls.initial_turbine_coordinates)
-            if turbine not in cls.control_turbines.values()
+            if turbine not in cls.control_turbines
         ]
 
     @classmethod
@@ -77,6 +77,16 @@ class TestCaseSetup(abc.ABC):
 
     @classmethod
     @property
+    def num_controls(cls):
+        """Get the number of control variables.
+
+        :return: number of control variables
+        :rtype: int
+        """
+        return sum([len(controls) for controls in cls.control_turbines.values()])
+
+    @classmethod
+    @property
     def initial_controls(cls):
         """Get the initial control values.
 
@@ -85,7 +95,8 @@ class TestCaseSetup(abc.ABC):
         """
         return {
             control: cls.initial_turbine_coordinates[turbine][cls.control_dims[control]]
-            for control, turbine in cls.control_turbines.items()
+            for turbine, controls in cls.control_turbines.items()
+            for control in controls
         }
 
     @classmethod
@@ -103,16 +114,17 @@ class TestCaseSetup(abc.ABC):
         fields = [
             Field("solution_2d", finite_element=p1dgvp1dg_element, unsteady=False)
         ]
-        for control in cls.control_turbines:
-            fields.append(
-                Field(
-                    control,
-                    family="Real",
-                    degree=0,
-                    unsteady=False,
-                    solved_for=False,
+        for controls in cls.control_turbines.values():
+            for control in controls:
+                fields.append(
+                    Field(
+                        control,
+                        family="Real",
+                        degree=0,
+                        unsteady=False,
+                        solved_for=False,
+                    )
                 )
-            )
         return fields
 
     @classmethod
@@ -143,8 +155,9 @@ def get_initial_condition(mesh_seq):
     u.interpolate(ufl.as_vector(mesh_seq.test_case_setup.initial_velocity))
     eta.assign(0.0)
     ics = {"solution_2d": solution_2d}
-    for control, turbine in mesh_seq.test_case_setup.control_turbines.items():
-        dim = mesh_seq.test_case_setup.control_dims[control]
-        ics[control] = Function(mesh_seq.function_spaces[control][0])
-        ics[control].assign(mesh_seq.test_case_setup.initial_turbine_coordinates[turbine][dim])
+    for turbine, controls in mesh_seq.test_case_setup.control_turbines.items():
+        for control in controls:
+            dim = mesh_seq.test_case_setup.control_dims[control]
+            ics[control] = Function(mesh_seq.function_spaces[control][0])
+            ics[control].assign(mesh_seq.test_case_setup.initial_turbine_coordinates[turbine][dim])
     return ics

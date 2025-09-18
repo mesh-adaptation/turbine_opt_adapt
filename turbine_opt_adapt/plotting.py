@@ -85,10 +85,11 @@ def plot_patches(mesh_seq, optimised, filename):
         add_patch(axes, x, y, "C0", "Fixed turbines")
     for (x, y) in test_case.initial_control_turbine_coordinates:
         add_patch(axes, x, y, "C1", "Initial control turbines")
-    for control, value in optimised.items():
-        turbine = test_case.control_turbines[control]
+    for turbine, controls in test_case.control_turbines.items():
         xy = test_case.initial_turbine_coordinates[turbine]
-        xy[test_case.control_dims[control]] = value
+        for control, value in optimised.items():
+            if control in controls:
+                xy[test_case.control_dims[control]] = value
         x, y = xy
         add_patch(axes, x, y, "C2", "Optimised control turbines")
     axes.set_title("")
@@ -151,7 +152,7 @@ class ProgressPlotter:
             "qois": r"Power output [$\mathrm{MW}$]",
             "dofs": "DoF count",
         }
-        if self.test_case_setup.num_control_turbines == 1:
+        if self.test_case_setup.num_controls == 1:
             labels["gradients"] = "Gradient relative to initial value"
         return labels
 

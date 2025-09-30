@@ -21,6 +21,7 @@ class TwoParameterSetup(TestCaseSetup):
     ]
     control_turbines = {3: ("xc", "yc")}
     control_dims = {"xc": 0, "yc": 1}
+    control_bounds = {"xc": (450.0, 1200.0), "yc": (190.0, 310.0)}
     # Rescale the functional such that the gradients are ~ order magnitude 1
     qoi_scaling = 100.0
     initial_velocity = (1e-03, 0.0)
@@ -39,20 +40,19 @@ class TwoParameterSetup(TestCaseSetup):
         mesh = mesh_seq[index]
         xc = mesh_seq.field_functions["xc"]
         yc = mesh_seq.field_functions["yc"]
-        farm_options = mesh_seq.tidal_farm_options
         area = assemble(domain_constant(1.0, mesh) * ufl.dx)
         alpha2 = domain_constant(1.0 / area ** 2, mesh)
-        x1 = farm_options.turbine_coordinates[0][0]
-        y2 = farm_options.turbine_coordinates[1][1]
-        y3 = farm_options.turbine_coordinates[2][1]
-        xmax = domain_constant(1200, mesh)
+        xl = domain_constant(cls.control_bounds["xc"][0], mesh)
+        xu = domain_constant(cls.control_bounds["xc"][1], mesh)
+        yl = domain_constant(cls.control_bounds["yc"][0], mesh)
+        yu = domain_constant(cls.control_bounds["yc"][1], mesh)
         return (
             alpha2
             * ufl.conditional(
-                xc < x1, (xc - x1) ** 2, ufl.conditional(xc > xmax, (xc - xmax) ** 2, 0)
+                xc < xl, (xc - xl) ** 2, ufl.conditional(xc > xu, (xc - xu) ** 2, 0)
             )
             * ufl.conditional(
-                yc < y3, (yc - y3) ** 2, ufl.conditional(yc > y2, (yc - y2) ** 2, 0)
+                yc < yl, (yc - yl) ** 2, ufl.conditional(yc > yu, (yc - yu) ** 2, 0)
             )
             * ufl.dx
         )

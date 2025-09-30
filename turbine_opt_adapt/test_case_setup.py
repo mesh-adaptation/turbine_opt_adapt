@@ -12,11 +12,26 @@ class TestCaseSetup(abc.ABC):
 
     """Base class for holding parameters related to a turbine optimisation test case."""
 
-    initial_turbine_coordinates = []
-    control_turbines = {}
-    control_dims = {}
+    initial_turbine_coordinates = []  # list of 2D coordinates
+    control_turbines = {}  # key: turbine, value: tuple of variable names
+    control_dims = {}  # key: variable name, value: dimension 0 or 1
+    control_bounds = {}  # key: variable name, value: 2-tuple with lower and upper bound
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
+
+    @classmethod
+    @property
+    def control2turbine(cls):
+        """Map from control variable to turbine index.
+
+        :return: turbine index
+        :rtype: int
+        """
+        return {
+            control: turbine
+            for turbine, controls in cls.control_turbines.items()
+            for control in controls
+        }
 
     @classmethod
     @property

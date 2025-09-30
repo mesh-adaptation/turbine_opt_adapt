@@ -21,6 +21,7 @@ class OneParameterSetup(TestCaseSetup):
     ]
     control_turbines = {3: ("yc",)}
     control_dims = {"yc": 1}
+    control_bounds = {"yc": (190.0, 310.0)}
     # Rescale the functional such that the gradients are ~ order magnitude 1
     qoi_scaling = 100.0
     initial_velocity = (1e-03, 0.0)
@@ -38,15 +39,14 @@ class OneParameterSetup(TestCaseSetup):
         """
         mesh = mesh_seq[index]
         yc = mesh_seq.field_functions["yc"]
-        farm_options = mesh_seq.tidal_farm_options
         area = assemble(domain_constant(1.0, mesh) * ufl.dx)
         alpha = domain_constant(1.0 / area, mesh)
-        y2 = farm_options.turbine_coordinates[1][1]
-        y3 = farm_options.turbine_coordinates[2][1]
+        yl = domain_constant(cls.control_bounds["yc"][0], mesh)
+        yu = domain_constant(cls.control_bounds["yc"][1], mesh)
         return (
             alpha
             * ufl.conditional(
-                yc < y3, (yc - y3) ** 2, ufl.conditional(yc > y2, (yc - y2) ** 2, 0)
+                yc < yl, (yc - yl) ** 2, ufl.conditional(yc > yu, (yc - yu) ** 2, 0)
             )
             * ufl.dx
         )

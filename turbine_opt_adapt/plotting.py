@@ -16,26 +16,50 @@ def plot_box_setup(filename, test_case):
     :type test_case: :class:`~turbine_opt_adapt.test_case_setup.TestCaseSetup`
     """
     fig, axes = plt.subplots(figsize=(12, 5))
+    axes.set_title("")
+
+    # Plot domain boundary
     axes.plot([0, 0], [0, 500], color="C2", linewidth=3, label="Inflow boundary")
     axes.plot([1200, 1200], [0, 500], color="C3", linewidth=3, label="Outflow boundary")
     axes.plot([0, 1200], [0, 0], color="C4", linewidth=3, label="No-slip boundary")
     axes.plot([0, 1200], [500, 500], color="C4", linewidth=3)
-    for (x, y) in test_case.fixed_turbine_coordinates:
-        add_patch(axes, x, y, "C0", "Fixed turbines")
-    for (x, y) in test_case.initial_control_turbine_coordinates:
-        add_patch(axes, x, y, "C1", "Control turbine")
-    axes.set_title("")
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
+
+    # Add patches for the fixed turbines
+    for i, (x, y) in enumerate(test_case.fixed_turbine_coordinates):
+        add_patch(axes, x, y, "C0", label="Fixed turbines" if i == 0 else None)
+
+    # Add patches for the control turbines
+    for i, (x, y) in enumerate(test_case.initial_control_turbine_coordinates):
+        add_patch(axes, x, y, "C1", label="Control turbine" if i == 0 else None)
+
+    # Add feasible region in the case of a single control turbine
+    if test_case.num_controls == 1:
+        control = tuple(test_case.control_bounds.keys())[0]
+        bounds = test_case.control_bounds[control]
+        turbine = test_case.control2turbine[control]
+        x, y = test_case.initial_turbine_coordinates[turbine]
+        if test_case.control_dims[control] == 0:
+            axes.plot(bounds, [y, y], "C1", linewidth=2, label="Feasible region")
+        else:
+            axes.plot([x, x], bounds, "C1", linewidth=2, label="Feasible region")
+    elif test_case.num_controls == 2 and test_case.num_control_turbines == 1:
+        dim2control = {dim: control for control, dim in test_case.control_dims.items()}
+        xc = dim2control[0]
+        yc = dim2control[1]
+        xl, xu = test_case.control_bounds[xc]
+        yl, yu = test_case.control_bounds[yc]
+        axes.plot([xl, xu], [yl, yl], "C1", linewidth=2, label="Feasible region")
+        axes.plot([xl, xu], [yu, yu], "C1", linewidth=2)
+        axes.plot([xl, xl], [yl, yu], "C1", linewidth=2)
+        axes.plot([xu, xu], [yl, yu], "C1", linewidth=2)
+
     axes.axis(True)
     eps = 5
     axes.set_xlim([-eps, 1200 + eps])
     axes.set_ylim([-eps, 500 + eps])
-    handles, labels = axes.get_legend_handles_labels()
-    indices = [0, 1, 2, 4, 4 + test_case.num_fixed_turbines]
-    handles = [handles[i] for i in indices]
-    labels = [labels[i] for i in indices]
-    axes.legend(handles, labels, loc="upper left")
+    axes.legend(loc="upper left")
     plt.savefig(filename, bbox_inches="tight")
 
 
@@ -80,24 +104,30 @@ def plot_patches(mesh_seq, optimised, filename):
     """
     test_case = mesh_seq.test_case_setup
     fig, axes = plt.subplots(figsize=(12, 5))
+    axes.set_title("")
+
+    # Plot the domain
     mesh_seq.plot(fig=fig, axes=axes)
-    for (x, y) in test_case.fixed_turbine_coordinates:
-        add_patch(axes, x, y, "C0", "Fixed turbines")
-    for (x, y) in test_case.initial_control_turbine_coordinates:
-        add_patch(axes, x, y, "C1", "Initial control turbines")
+
+    # Add patches for the fixed turbines
+    for i, (x, y) in enumerate(test_case.fixed_turbine_coordinates):
+        add_patch(axes, x, y, "C0", label="Fixed turbines" if i == 0 else None)
+
+    # Add patches for the initial positions of the control turbines
+    for i, (x, y) in enumerate(test_case.initial_control_turbine_coordinates):
+        label = "Initial control turbines" if i == 0 else None
+        add_patch(axes, x, y, "C1", label=label)
+
+    # Add patches for the optimised positions of the control turbines
     for turbine, controls in test_case.control_turbines.items():
         xy = test_case.initial_turbine_coordinates[turbine]
-        for control, value in optimised.items():
-            if control in controls:
-                xy[test_case.control_dims[control]] = value
+        for control in controls:
+            dim = test_case.control_dims[control]
+            xy[dim] = optimised[control]
         x, y = xy
-        add_patch(axes, x, y, "C2", "Optimised control turbines")
-    axes.set_title("")
-    handles, labels = axes.get_legend_handles_labels()
-    indices = [4, 4 + test_case.num_fixed_turbines, 4 + test_case.num_turbines]
-    handles = [handles[i] for i in indices]
-    labels = [labels[i] for i in indices]
-    axes.legend(handles, labels, loc="upper left")
+        add_patch(axes, x, y, "C2", label="Optimised control turbines")
+
+    axes.legend(loc="upper left")
     plt.savefig(filename, bbox_inches="tight")
 
 

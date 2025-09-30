@@ -116,7 +116,7 @@ np.save(f"{output_dir}/{experiment_id}_gradients.npy", optimiser.progress["gradi
 if args.plot_fields:
     # Plot the patches for the final positions in relatively low resolution cases
     if n < 2:
-        optimised = {"yc": optimiser.progress["controls"][-1]}
+        optimised = {"yc": optimiser.progress["controls"][-1][0]}
         plot_patches(mesh_seq, optimised, f"{plot_dir}/patches.jpg")
 
     # Plot the x-velocity component of the forward solution for the final controls

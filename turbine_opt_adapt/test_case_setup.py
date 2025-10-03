@@ -5,6 +5,7 @@ import ufl
 from finat.ufl import FiniteElement, MixedElement, VectorElement
 from firedrake.function import Function
 from goalie.field import Field
+from thetis.utility import domain_constant
 
 __all__ = ["TestCaseSetup", "get_initial_condition"]
 
@@ -18,6 +19,8 @@ class TestCaseSetup(abc.ABC):
     control_bounds = {}  # key: variable name, value: 2-tuple with lower and upper bound
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
+    regularisation_coefficient = 1.0e-04
+    log_barrier_coefficient = 100.0
 
     @classmethod
     @property
@@ -143,11 +146,28 @@ class TestCaseSetup(abc.ABC):
         return fields
 
     @classmethod
-    @abc.abstractmethod
-    def regularisation_term(cls, mesh_seq, index):
-        """Add a regularisation term for constraining the control.
+    def bound_term(cls, mesh_seq, index):
+        """Add a log-barrier term to impose bounds on the control variables.
 
-        To be implemented in subclass.
+        :param mesh_seq: mesh sequence holding the mesh
+        :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
+        :param index: index of the mesh in the sequence
+        :type index: :class:`int`
+        :return: boundary term
+        :rtype: :class:`~.ufl.Expr`
+        """
+        mesh = mesh_seq.meshes[index]
+        tau = domain_constant(cls.log_barrier_coefficient, mesh)
+        summation = 0
+        for control in cls.control_dims:
+            lower, upper = cls.control_bounds[control]
+            x = mesh_seq.field_functions[control]
+            summation += -ufl.ln(x - lower) - ufl.ln(upper - x)
+        return (1.0 / tau) * summation * ufl.dx
+
+    @classmethod
+    def regularisation_term(cls, mesh_seq, index):
+        """Add a Tikhonov regularisation term.
 
         :param mesh_seq: mesh sequence holding the mesh
         :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
@@ -156,6 +176,12 @@ class TestCaseSetup(abc.ABC):
         :return: regularisation term
         :rtype: :class:`~.ufl.Expr`
         """
+        mesh = mesh_seq.meshes[index]
+        alpha = domain_constant(cls.regularisation_coefficient, mesh)
+        summation = sum(
+            mesh_seq.field_functions[control] ** 2 for control in cls.control_dims
+        )
+        return alpha * summation * ufl.dx
 
 def get_initial_condition(mesh_seq):
     """Get the initial conditions for a turbine optimisation test case.

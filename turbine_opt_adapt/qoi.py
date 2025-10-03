@@ -24,8 +24,12 @@ def get_qoi(mesh_seq, index):
         #       also available from pyadjoint but currently broken)
         J_power = -farm.turbine.power(u, eta) * farm.turbine_density * ufl.dx
 
-        # Add the regularisation contribution
+        # Log-barrier contribution for imposing bounds
+        J_bnd = mesh_seq.test_case_setup.bound_term(mesh_seq, index)
+
+        # Tikhonov regularisation contribution
         J_reg = mesh_seq.test_case_setup.regularisation_term(mesh_seq, index)
-        return mesh_seq.test_case_setup.qoi_scaling * (J_power + J_reg)
+
+        return mesh_seq.test_case_setup.qoi_scaling * J_power + J_reg + J_bnd
 
     return steady_qoi

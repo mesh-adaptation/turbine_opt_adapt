@@ -9,6 +9,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.interpolate import CubicSpline
 from setup import OneParameterSetup
 
@@ -55,13 +56,30 @@ fixed_mesh_qois = -np.load(f"{output_dir}/{experiment_id}_qois.npy") * scaling
 
 # Plot the trajectory with the maximum QoI highlighted
 fig, axes = plt.subplots()
-axes.plot(sampled_controls, sampled_qois, "--x", label="Sampled data")
-axes.plot(max_control, max_qoi, "o", label="Maximum value")
-axes.plot(fixed_mesh_controls, fixed_mesh_qois, "--^", label="Fixed mesh")
+axes.plot(sampled_controls, sampled_qois, "--x", color="C0", label="Sampled data")
+axes.plot(max_control, max_qoi, "o", color="C1", label="Maximum value")
+axes.plot(fixed_mesh_controls, fixed_mesh_qois, "--^", color="C2", label="Fixed mesh")
+axes.plot(
+    fixed_mesh_controls[-1],
+    fixed_mesh_qois[-1],
+    "*",
+    color="C2",
+    label="Converged value"
+)
 axes.set_xlabel(r"Control turbine position [$\mathrm{m}$]")
 axes.set_ylabel(r"Power output [$\mathrm{MW}$]")
 axes.grid(True)
-axes.legend()
+axes.legend(loc="upper right")
+
+# Add a zoomed-in inset around the maximum value
+ax_inset = inset_axes(axes, width="40%", height="20%", loc="center right")
+ax_inset.plot(sampled_controls, sampled_qois, "--x")
+ax_inset.plot(max_control, max_qoi, "o")
+ax_inset.plot(fixed_mesh_controls[-1], fixed_mesh_qois[-1], "*")
+ax_inset.set_xlim(max_control - 2.0, max_control + 2.0)
+ax_inset.set_ylim(max_qoi - 0.002, max_qoi + 0.002)
+ax_inset.grid(True)
+
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 plt.savefig(f"{plot_dir}/progress_parameter_space.png", bbox_inches="tight")

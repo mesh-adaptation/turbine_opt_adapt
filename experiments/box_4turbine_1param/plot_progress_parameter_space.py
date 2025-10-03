@@ -16,14 +16,21 @@ from setup import OneParameterSetup
 parser = argparse.ArgumentParser(
     description="Plot progress of controls and QoIs on the same axis."
 )
-parser.add_argument("--n", type=int, default=0, help="Initial mesh resolution.")
+parser.add_argument("--n", type=float, default=0, help="Initial mesh resolution.")
 args = parser.parse_args()
 
 n = args.n
+n = args.n
+if np.isclose(n, np.round(n)):
+    experiment_id = f"fixed_mesh_{int(n)}"
+else:
+    experiment_id = f"fixed_mesh_{n:.4f}".replace(".", "p")
+output_dir = f"outputs/{experiment_id}"
+plot_dir = f"plots/{experiment_id}"
 scaling = 1e-6 / OneParameterSetup.qoi_scaling
 
-sampled_controls = np.load(f"outputs/fixed_mesh_{n}/sampled_controls.npy")
-sampled_qois = -np.load(f"outputs/fixed_mesh_{n}/sampled_qois.npy") * scaling
+sampled_controls = np.load(f"{output_dir}/sampled_controls.npy")
+sampled_qois = -np.load(f"{output_dir}/sampled_qois.npy") * scaling
 
 # Perform cubic interpolation
 cubic_spline = CubicSpline(sampled_controls, sampled_qois)
@@ -43,19 +50,18 @@ max_control = critical_controls[max_index]
 max_qoi = critical_qois[max_index]
 print(f"Maximum QoI: {max_qoi} at Control: {max_control}")
 
-fixed_mesh_controls = np.load(f"outputs/fixed_mesh_{n}/fixed_mesh_{n}_controls.npy")
-fixed_mesh_qois = -np.load(f"outputs/fixed_mesh_{n}/fixed_mesh_{n}_qois.npy") * scaling
+fixed_mesh_controls = np.load(f"{output_dir}/{experiment_id}_controls.npy")
+fixed_mesh_qois = -np.load(f"{output_dir}/{experiment_id}_qois.npy") * scaling
 
 # Plot the trajectory with the maximum QoI highlighted
 fig, axes = plt.subplots()
 axes.plot(sampled_controls, sampled_qois, "--x", label="Sampled data")
-axes.plot(fixed_mesh_controls, fixed_mesh_qois, "--^", label="Fixed mesh")
 axes.plot(max_control, max_qoi, "o", label="Maximum value")
+axes.plot(fixed_mesh_controls, fixed_mesh_qois, "--^", label="Fixed mesh")
 axes.set_xlabel(r"Control turbine position [$\mathrm{m}$]")
 axes.set_ylabel(r"Power output [$\mathrm{MW}$]")
 axes.grid(True)
 axes.legend()
-plot_dir = f"plots/fixed_mesh_{n}"
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
 plt.savefig(f"{plot_dir}/progress_parameter_space.png", bbox_inches="tight")

@@ -26,14 +26,6 @@ def plot_box_setup(filename, test_case):
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
 
-    # Add patches for the fixed turbines
-    for i, (x, y) in enumerate(test_case.fixed_turbine_coordinates):
-        add_patch(axes, x, y, "C0", label="Fixed turbines" if i == 0 else None)
-
-    # Add patches for the control turbines
-    for i, (x, y) in enumerate(test_case.initial_control_turbine_coordinates):
-        add_patch(axes, x, y, "C1", label="Control turbine" if i == 0 else None)
-
     # Add feasible region in the case of a single control turbine
     if test_case.num_controls == 1:
         control = tuple(test_case.control_bounds.keys())[0]
@@ -46,14 +38,21 @@ def plot_box_setup(filename, test_case):
             axes.plot([x, x], bounds, "C1", linewidth=2, label="Feasible region")
     elif test_case.num_controls == 2 and test_case.num_control_turbines == 1:
         dim2control = {dim: control for control, dim in test_case.control_dims.items()}
-        xc = dim2control[0]
-        yc = dim2control[1]
-        xl, xu = test_case.control_bounds[xc]
-        yl, yu = test_case.control_bounds[yc]
-        axes.plot([xl, xu], [yl, yl], "C1", linewidth=2, label="Feasible region")
-        axes.plot([xl, xu], [yu, yu], "C1", linewidth=2)
-        axes.plot([xl, xl], [yl, yu], "C1", linewidth=2)
-        axes.plot([xu, xu], [yl, yu], "C1", linewidth=2)
+        axes.fill_between(
+            test_case.control_bounds[dim2control[0]],
+            *test_case.control_bounds[dim2control[1]],
+            color="C1",
+            alpha=0.3,
+            label="Feasible region"
+        )
+
+    # Add patches for the fixed turbines
+    for i, (x, y) in enumerate(test_case.fixed_turbine_coordinates):
+        add_patch(axes, x, y, "C0", label="Fixed turbines" if i == 0 else None)
+
+    # Add patches for the control turbines
+    for i, (x, y) in enumerate(test_case.initial_control_turbine_coordinates):
+        add_patch(axes, x, y, "C1", label="Control turbine" if i == 0 else None)
 
     axes.axis(True)
     eps = 5

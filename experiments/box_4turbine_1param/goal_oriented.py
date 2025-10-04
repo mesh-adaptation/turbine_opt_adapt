@@ -215,7 +215,7 @@ with open(f"{output_dir}/cputime.txt", "w") as f:
 
 # Write the optimiser progress to file
 for key, value in optimiser.progress.items():
-    np.save(f"{output_dir}/{experiment_id}_{key}.npy", value)
+    np.save(f"{output_dir}/{config_str}_{key}.npy", value)
 
 if args.plot_fields:
     # Plot the patches for the final positions

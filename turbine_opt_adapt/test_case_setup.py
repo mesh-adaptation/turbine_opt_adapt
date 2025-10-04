@@ -20,7 +20,7 @@ class TestCaseSetup(abc.ABC):
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
     regularisation_coefficient = 0  # TODO: Turn on regularisation
-    log_barrier_coefficient = 10000.0  # NOTE: Gets multiplied by qoi_scaling
+    log_barrier_coefficient = 1000.0  # NOTE: Gets multiplied by qoi_scaling
 
     @classmethod
     @property

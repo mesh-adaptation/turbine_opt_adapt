@@ -197,7 +197,7 @@ class ProgressPlotter:
         if variable in ("qois", "gradients"):
             arr *= -1e-6 / self.test_case_setup.qoi_scaling
         elif variable in ("J_power", "J_bnd", "J_reg"):
-            arr *= -1e-6
+            arr *= 1e-6
         if variable == "gradients":
             arr = np.abs(arr)
             arr /= arr[0]  # Normalise by the first value

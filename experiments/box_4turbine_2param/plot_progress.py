@@ -32,7 +32,7 @@ for i, label in enumerate(("qois", "dofs")):
     plotter = ProgressPlotter(
         TwoParameterSetup,
         axes,
-        "timings",
+        "cputimes",
         label,
         experiment_id,
         args.n,

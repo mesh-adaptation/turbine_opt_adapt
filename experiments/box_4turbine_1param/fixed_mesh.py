@@ -107,11 +107,8 @@ with open(f"{output_dir}/cputime.txt", "w") as f:
     f.write(f"{cpu_time:.2f} seconds\n")
 
 # Write the optimiser progress to file
-np.save(f"{output_dir}/{experiment_id}_timings.npy", optimiser.progress["cputime"])
-np.save(f"{output_dir}/{experiment_id}_dofs.npy", optimiser.progress["dofs"])
-np.save(f"{output_dir}/{experiment_id}_controls.npy", optimiser.progress["controls"])
-np.save(f"{output_dir}/{experiment_id}_qois.npy", optimiser.progress["qoi"])
-np.save(f"{output_dir}/{experiment_id}_gradients.npy", optimiser.progress["gradients"])
+for key, value in optimiser.progress.items():
+    np.save(f"{output_dir}/{experiment_id}_{key}.npy", value)
 
 if args.plot_fields:
     # Plot the patches for the final positions in relatively low resolution cases

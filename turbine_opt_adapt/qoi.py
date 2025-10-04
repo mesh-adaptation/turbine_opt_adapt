@@ -41,6 +41,6 @@ def get_qoi(mesh_seq, index):
         if hasattr(mesh_seq, "progress"):
             mesh_seq.progress["J_reg"].append(assemble(J_reg))
 
-        return mesh_seq.test_case_setup.qoi_scaling * J_power + J_reg + J_bnd
+        return mesh_seq.test_case_setup.qoi_scaling * (J_power + J_reg + J_bnd)
 
     return steady_qoi

@@ -169,17 +169,12 @@ class ProgressPlotter:
         self.targets = targets
 
     @property
-    def scaling(self):
-        """Scaling for QoIs and gradients."""
-        return -1e-6 / self.test_case_setup.qoi_scaling
-
-    @property
     def labels(self):
         """Dictionary of variables to plot and their labels."""
         labels = {
             "controls": r"Control turbine position [$\mathrm{m}$]",
-            "qois": r"Power output [$\mathrm{MW}$]",
             "dofs": "DoF count",
+            "qois": r"Power output [$\mathrm{MW}$]",
         }
         if self.test_case_setup.num_controls == 1:
             labels["gradients"] = "Gradient relative to initial value"
@@ -200,17 +195,20 @@ class ProgressPlotter:
             print(f"File '{fname}' not found.")
             raise FileNotFoundError from file_error
         if variable in ("qois", "gradients"):
-            arr *= self.scaling
+            arr *= -1e-6 / self.test_case_setup.qoi_scaling
+        elif variable in ("J_power", "J_bnd", "J_reg"):
+            arr *= -1e-6
         if variable == "gradients":
             arr = np.abs(arr)
             arr /= arr[0]  # Normalise by the first value
         return arr
 
-    def try_plot(self, run, label, output_dir):
+    def try_plot(self, run, label, colour, output_dir):
         """Attempt to plot data for a given run and variable names on the provided axes.
 
         :param run: Identifier for the run (e.g., "fixed_mesh_1").
         :param label: Label for the plot line.
+        :param colour: Colour to use for plotting
         :param output_dir: Directory where the output data is stored.
         """
         try:
@@ -219,19 +217,29 @@ class ProgressPlotter:
         except FileNotFoundError:
             return
         if self.y == "gradients":
-            self.axes.loglog(x_arr, y_arr, "--x", label=label)
+            self.axes.loglog(x_arr, y_arr, "--x", color=colour, label=label)
         else:
-            self.axes.semilogx(x_arr, y_arr, "--x", label=label)
+            self.axes.semilogx(x_arr, y_arr, "--x", color=colour, label=label)
+        if self.y == "qois":
+            try:
+                p_arr = self.try_load(run, "J_power", output_dir)
+                b_arr = self.try_load(run, "J_bnd", output_dir)
+            except FileNotFoundError:
+                return
+            assert np.allclose(p_arr + b_arr, y_arr)
+            self.axes.semilogx(x_arr, p_arr, ":^", color=colour)
+
 
     @staticmethod
     def n_str(n):
         """Convert a mesh resolution `n` to a string representation."""
         return n if np.isclose(n, np.round(n)) else f"{n:.4f}".replace(".", "p")
 
-    def plot_fixed_mesh(self, n):
+    def plot_fixed_mesh(self, n, colour):
         """Plot data for a fixed mesh with a given resolution.
 
         :param n: Mesh resolution.
+        :param colour: Colour to use for plotting
         """
         run = f"fixed_mesh_{self.n_str(n)}"
         output_dir = f"outputs/{run}"
@@ -240,14 +248,15 @@ class ProgressPlotter:
         except FileNotFoundError:
             return
         label = f"Fixed mesh ({dofs:.0f} DoFs)"
-        self.try_plot(run, label, output_dir)
+        self.try_plot(run, label, colour, output_dir)
 
-    def plot_goal_oriented(self, n, anisotropic, target):
+    def plot_goal_oriented(self, n, anisotropic, target, colour):
         """Plot data for a goal-oriented approach.
 
         :param n: Mesh resolution.
         :param anisotropic: Bool indicating if the approach is anisotropic.
         :param target: Target complexity for the goal-oriented approach.
+        :param colour: Colour to use for plotting
         """
         aniso = int(anisotropic)
         go_name = ["Isotropic goal-oriented", "Anisotropic goal-oriented"][aniso]
@@ -261,15 +270,16 @@ class ProgressPlotter:
                 f"target{target:.0f}",
             ]
         )
-        self.try_plot(run, label, output_dir=f"outputs/{self.experiment_id}")
+        self.try_plot(run, colour, label, output_dir=f"outputs/{self.experiment_id}")
 
     def plot_all(self):
         """Plot data across all configurations."""
         for n in self.n_range:
-            self.plot_fixed_mesh(n)
+            self.plot_fixed_mesh(n, f"C{n}")
         for anisotropic in range(2):
             for target in self.targets:
-                self.plot_goal_oriented(self.base_n, anisotropic, target)
+                n += 1
+                self.plot_goal_oriented(self.base_n, anisotropic, target, f"C{n}")
         self.axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
         self.axes.set_ylabel(self.labels[self.y])
         self.axes.grid(True)

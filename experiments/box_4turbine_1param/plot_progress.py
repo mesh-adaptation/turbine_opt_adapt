@@ -45,6 +45,7 @@ for i, label in enumerate(("controls", "qois", "gradients", "dofs")):
 
     if i == 0:
         # Save the legend separately
+        # TODO: Add entries for J_power
         fig = plt.figure()
         fig.legend(handles, labels, loc="center", frameon=False, ncol=3)
         fig.savefig(f"{plot_dir}/legend.jpg", bbox_inches="tight")

@@ -270,7 +270,7 @@ class ProgressPlotter:
                 f"target{target:.0f}",
             ]
         )
-        self.try_plot(run, colour, label, output_dir=f"outputs/{self.experiment_id}")
+        self.try_plot(run, label, colour, output_dir=f"outputs/{self.experiment_id}")
 
     def plot_all(self):
         """Plot data across all configurations."""

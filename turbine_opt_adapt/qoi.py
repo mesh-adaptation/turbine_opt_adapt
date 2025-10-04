@@ -18,7 +18,7 @@ def get_qoi(mesh_seq, index):
     if hasattr(mesh_seq, "progress") and ("J_power" not in mesh_seq.progress):
         mesh_seq.progress["J_power"] = []
         mesh_seq.progress["J_bnd"] = []
-        mesh_seq.progress["J_reg"] = []
+    # TODO: Make less hacky - should be easier once Log-barrier in Goalie
 
     def steady_qoi():
         u, eta = ufl.split(mesh_seq.field_functions["solution_2d"])
@@ -34,13 +34,8 @@ def get_qoi(mesh_seq, index):
         if hasattr(mesh_seq, "progress"):
             mesh_seq.progress["J_bnd"].append(assemble(J_bnd))
 
-        # Tikhonov regularisation contribution
-        J_reg = mesh_seq.test_case_setup.regularisation_term(mesh_seq, index)
-        if hasattr(mesh_seq, "progress"):
-            mesh_seq.progress["J_reg"].append(assemble(J_reg))
-
         # NOTE: Negative so that minimising the functional maximises power (maximize is
         #       also available from pyadjoint but currently broken)
-        return -mesh_seq.test_case_setup.qoi_scaling * (J_power + J_reg + J_bnd)
+        return -mesh_seq.test_case_setup.qoi_scaling * (J_power + J_bnd)
 
     return steady_qoi

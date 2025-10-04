@@ -196,7 +196,7 @@ class ProgressPlotter:
             raise FileNotFoundError from file_error
         if variable in ("qois", "gradients"):
             arr *= -1e-6 / self.test_case_setup.qoi_scaling
-        elif variable in ("J_power", "J_bnd", "J_reg"):
+        elif variable in ("J_power", "J_bnd"):
             arr *= 1e-6
         if variable == "gradients":
             arr = np.abs(arr)
@@ -274,12 +274,12 @@ class ProgressPlotter:
 
     def plot_all(self):
         """Plot data across all configurations."""
-        for n in self.n_range:
-            self.plot_fixed_mesh(n, f"C{n}")
+        for count, n in enumerate(self.n_range):
+            self.plot_fixed_mesh(n, f"C{count}")
         for anisotropic in range(2):
             for target in self.targets:
-                n += 1
-                self.plot_goal_oriented(self.base_n, anisotropic, target, f"C{n}")
+                count += 1
+                self.plot_goal_oriented(self.base_n, anisotropic, target, f"C{count}")
         self.axes.set_xlabel(r"CPU time [$\mathrm{s}$]")
         self.axes.set_ylabel(self.labels[self.y])
         self.axes.grid(True)

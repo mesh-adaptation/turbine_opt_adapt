@@ -19,7 +19,6 @@ class TestCaseSetup(abc.ABC):
     control_bounds = {}  # key: variable name, value: 2-tuple with lower and upper bound
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
-    regularisation_coefficient = 0  # TODO: Turn on regularisation
     log_barrier_coefficient = 1000.0  # NOTE: Gets multiplied by qoi_scaling
 
     @classmethod
@@ -145,6 +144,7 @@ class TestCaseSetup(abc.ABC):
                 )
         return fields
 
+    # TODO: Move log-barrier functionality to Goalie's optimisation module and track
     @classmethod
     def bound_term(cls, mesh_seq, index):
         """Add a log-barrier term to impose bounds on the control variables.
@@ -164,24 +164,6 @@ class TestCaseSetup(abc.ABC):
             x = mesh_seq.field_functions[control]
             summation += -ufl.ln(x - lower) - ufl.ln(upper - x)
         return (1.0 / tau) * summation * ufl.dx
-
-    @classmethod
-    def regularisation_term(cls, mesh_seq, index):
-        """Add a Tikhonov regularisation term.
-
-        :param mesh_seq: mesh sequence holding the mesh
-        :type mesh_seq: :class:`goalie.mesh_seq.MeshSeq`
-        :param index: index of the mesh in the sequence
-        :type index: :class:`int`
-        :return: regularisation term
-        :rtype: :class:`~.ufl.Expr`
-        """
-        mesh = mesh_seq.meshes[index]
-        alpha = domain_constant(cls.regularisation_coefficient, mesh)
-        summation = sum(
-            mesh_seq.field_functions[control] ** 2 for control in cls.control_dims
-        )
-        return alpha * summation * ufl.dx
 
 def get_initial_condition(mesh_seq):
     """Get the initial conditions for a turbine optimisation test case.

@@ -21,7 +21,6 @@ parser.add_argument("--n", type=float, default=0, help="Initial mesh resolution.
 args = parser.parse_args()
 
 n = args.n
-n = args.n
 if np.isclose(n, np.round(n)):
     experiment_id = f"fixed_mesh_{int(n)}"
 else:
@@ -32,9 +31,12 @@ scaling = 1e-6 / OneParameterSetup.qoi_scaling
 
 sampled_controls = np.load(f"{output_dir}/sampled_controls.npy")
 sampled_qois = -np.load(f"{output_dir}/sampled_qois.npy") * scaling
+sampled_powers = np.load(f"{output_dir}/sampled_powers.npy") * 1e-6
+sampled_bnds = np.load(f"{output_dir}/sampled_bnds.npy") * 1e-6
+assert np.allclose(sampled_powers + sampled_bnds, sampled_qois)
 
-# Perform cubic interpolation
-cubic_spline = CubicSpline(sampled_controls, sampled_qois)
+# Perform cubic interpolation away from boundary
+cubic_spline = CubicSpline(sampled_controls[10:-10], sampled_qois[10:-10])
 
 # Find the derivative of the cubic spline
 derivative = cubic_spline.derivative()
@@ -56,7 +58,8 @@ fixed_mesh_qois = -np.load(f"{output_dir}/{experiment_id}_qois.npy") * scaling
 
 # Plot the trajectory with the maximum QoI highlighted
 fig, axes = plt.subplots()
-axes.plot(sampled_controls, sampled_qois, "--x", color="C0", label="Sampled data")
+axes.plot(sampled_controls, sampled_qois, "--x", color="C0", label="Sampled QoI")
+axes.plot(sampled_controls, sampled_powers, ":+", color="C0", label="Sampled power")
 axes.plot(max_control, max_qoi, "o", color="C1", label="Maximum value")
 axes.plot(fixed_mesh_controls, fixed_mesh_qois, "--^", color="C2", label="Fixed mesh")
 axes.plot(

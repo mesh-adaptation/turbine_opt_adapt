@@ -6,6 +6,7 @@ import os
 import numpy as np
 from firedrake.utility_meshes import RectangleMesh
 from goalie.adjoint import AdjointMeshSeq
+from goalie.optimisation import OptimisationProgress
 from goalie.time_partition import TimeInstant
 from setup import OneParameterSetup
 
@@ -34,10 +35,11 @@ mesh = RectangleMesh(nx, ny, 1200, 500)
 # Explore the parameter space and compute the corresponding cost function values
 turbine = OneParameterSetup.control2turbine["yc"]
 dim = OneParameterSetup.control_dims["yc"]
-initial_turbine_coordinates = OneParameterSetup.initial_turbine_coordinates
-y1, y2 = initial_turbine_coordinates[0][1], initial_turbine_coordinates[1][1]
-controls = np.linspace(y1, y2, int(np.round(2 * (y2 - y1) + 1)))
+yl, yu = OneParameterSetup.control_bounds["yc"]
+controls = np.linspace((yl + yu) / 2, yu, int(np.round(2 * (yu - yl) + 1)))
 qois = []
+powers = []
+bnds = []
 for i, control in enumerate(controls):
     OneParameterSetup.initial_turbine_coordinates[turbine][dim] = control
 
@@ -50,6 +52,7 @@ for i, control in enumerate(controls):
         qoi_type="steady",
         test_case_setup=OneParameterSetup,
     )
+    mesh_seq.progress = OptimisationProgress()
 
     # FIXME: get_checkpoints gives tiny QoI
     # mesh_seq.get_checkpoints(run_final_subinterval=True)
@@ -57,7 +60,11 @@ for i, control in enumerate(controls):
     J = mesh_seq.J
     print(f"control={control:6.4f}, qoi={J:11.4e}")
     qois.append(J)
+    powers.append(mesh_seq.progress["J_power"][-1])
+    bnds.append(mesh_seq.progress["J_bnd"][-1])
 
     # Save the trajectory to file
     np.save(f"{output_dir}/sampled_controls.npy", controls[: i + 1])
     np.save(f"{output_dir}/sampled_qois.npy", qois)
+    np.save(f"{output_dir}/sampled_powers.npy", powers)
+    np.save(f"{output_dir}/sampled_bnds.npy", bnds)

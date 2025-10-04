@@ -19,7 +19,7 @@ class TestCaseSetup(abc.ABC):
     control_bounds = {}  # key: variable name, value: 2-tuple with lower and upper bound
     qoi_scaling = 1.0
     initial_velocity = (0.0, 0.0)
-    regularisation_coefficient = 1.0e-04
+    regularisation_coefficient = 0  # TODO: Turn on regularisation
     log_barrier_coefficient = 100.0
 
     @classmethod

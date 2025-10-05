@@ -1,4 +1,4 @@
-"""Explore the parameter space by sampling a range of control values."""
+"""Explore the 1D parameter space by sampling a range of control values."""
 
 import argparse
 import os
@@ -36,11 +36,14 @@ mesh = RectangleMesh(nx, ny, 1200, 500)
 turbine = OneParameterSetup.control2turbine["yc"]
 dim = OneParameterSetup.control_dims["yc"]
 yl, yu = OneParameterSetup.control_bounds["yc"]
-controls = np.linspace((yl + yu) / 2, yu, int(np.round(2 * (yu - yl) + 1)))
+n_sample = int(np.round(yu - yl + 1))
+controls = np.linspace((yl + yu) / 2, yu, n_sample)
 qois = []
 powers = []
 bnds = []
 for i, control in enumerate(controls):
+    print(f"Sample {i + 1} / {n_sample}")
+
     OneParameterSetup.initial_turbine_coordinates[turbine][dim] = control
 
     mesh_seq = AdjointMeshSeq(

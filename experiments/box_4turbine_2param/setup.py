@@ -18,7 +18,8 @@ class TwoParameterSetup(TestCaseSetup):
     ]
     control_turbines = {3: ("xc", "yc")}
     control_dims = {"xc": 0, "yc": 1}
-    control_bounds = {"xc": (450.0, 1200.0), "yc": (190.0, 310.0)}
+    # TODO: Properly impose that turbines can't come too close to each other
+    control_bounds = {"xc": (450.0, 1190.0), "yc": (190.0, 310.0)}
     # Rescale the functional such that the gradients are ~ order magnitude 1
     qoi_scaling = 100.0
     initial_velocity = (1e-03, 0.0)

@@ -1,4 +1,4 @@
-"""Plot control and QoI values against the parameter space sampled from fixed mesh runs.
+"""Plot values against the 1D parameter space sampled from fixed mesh runs.
 
 Run `python3 plot_progress_parameter_spaces.py --help` to see the available command-line
 options.

@@ -54,7 +54,8 @@ powers = []
 bnds = []
 for i, x_control in enumerate(x_controls):
     for j, y_control in enumerate(y_controls):
-        print(f"Sample {n_sample_y * i + j + 1} / {n_sample}")
+        k = n_sample_y * i + j + 1
+        print(f"Sample {k} / {n_sample}")
 
         TwoParameterSetup.initial_turbine_coordinates[turbine][0] = x_control
         TwoParameterSetup.initial_turbine_coordinates[turbine][1] = y_control
@@ -81,7 +82,7 @@ for i, x_control in enumerate(x_controls):
         bnds.append(mesh_seq.progress["J_bnd"][-1])
 
         # Save the trajectory to file
-        np.save(f"{output_dir}/sampled_controls.npy", controls[: i + 1])
+        np.save(f"{output_dir}/sampled_controls.npy", controls[:k])
         np.save(f"{output_dir}/sampled_qois.npy", qois)
         np.save(f"{output_dir}/sampled_powers.npy", powers)
         np.save(f"{output_dir}/sampled_bnds.npy", bnds)

@@ -46,8 +46,8 @@ assert np.allclose(sampled_powers + sampled_bnds, sampled_qois)
 nx = sampled_controls.shape[0] // 61
 
 # Avoid infinite values
-sampled_qois = np.nan_to_num(sampled_qois, posinf=1e6)
-sampled_bnds = np.nan_to_num(sampled_bnds, posinf=1e6)
+sampled_qois = np.nan_to_num(sampled_qois, neginf=-1e6)
+sampled_bnds = np.nan_to_num(sampled_bnds, neginf=-1e6)
 
 # Define a mesh based on the sampled controls
 xmin, ymin = sampled_controls.min(axis=0)
@@ -76,7 +76,7 @@ for name, field in zip(("power", "qoi", "bnd"), (powers, qois, bnds)):
     # Plot the parameter space
     fig, axes = plt.subplots(figsize=(12, 5))
     axes.set_title("")
-    levels = 9 if name == "bnd" else np.linspace(6, 6.6, 9)
+    levels = 9 if name == "bnd" else np.linspace(6, 6.6, 9)  # TODO: better approach
     fig.colorbar(tricontourf(field, axes=axes, cmap="coolwarm", levels=levels), ax=axes)
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")

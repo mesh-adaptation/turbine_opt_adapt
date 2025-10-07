@@ -42,7 +42,7 @@ control2index = {f"{x}_{y}": i for i, (x, y) in enumerate(int_controls)}
 sampled_qois = -np.load(f"{output_dir}/sampled_qois.npy") * scaling
 sampled_powers = np.load(f"{output_dir}/sampled_powers.npy") * 1e-6
 sampled_bnds = np.load(f"{output_dir}/sampled_bnds.npy") * 1e-6
-assert np.allclose(sampled_powers + sampled_bnds, sampled_qois)
+assert np.allclose(-(-sampled_powers + sampled_bnds), sampled_qois)
 nx = sampled_controls.shape[0] // 61
 
 # Avoid infinite values

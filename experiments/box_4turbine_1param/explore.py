@@ -41,6 +41,7 @@ controls = np.linspace((yl + yu) / 2, yu, n_sample)
 qois = []
 powers = []
 bnds = []
+gradients = []
 for i, control in enumerate(controls):
     print(f"Sample {i + 1} / {n_sample}")
 
@@ -59,15 +60,17 @@ for i, control in enumerate(controls):
 
     # FIXME: get_checkpoints gives tiny QoI
     # mesh_seq.get_checkpoints(run_final_subinterval=True)
-    mesh_seq.solve_adjoint()
+    mesh_seq.solve_adjoint(compute_gradient=True)
     J = mesh_seq.J
     print(f"control={control:6.4f}, qoi={J:11.4e}")
     qois.append(J)
     powers.append(mesh_seq.progress["J_power"][-1])
     bnds.append(mesh_seq.progress["J_bnd"][-1])
+    gradients.append(mesh_seq.gradient["yc"])
 
     # Save the trajectory to file
     np.save(f"{output_dir}/sampled_controls.npy", controls[: i + 1])
     np.save(f"{output_dir}/sampled_qois.npy", qois)
     np.save(f"{output_dir}/sampled_powers.npy", powers)
     np.save(f"{output_dir}/sampled_bnds.npy", bnds)
+    np.save(f"{output_dir}/sampled_gradients.npy", gradients)

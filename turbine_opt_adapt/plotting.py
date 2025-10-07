@@ -226,7 +226,7 @@ class ProgressPlotter:
                 b_arr = self.try_load(run, "J_bnd", output_dir)
             except FileNotFoundError:
                 return
-            assert np.allclose(p_arr + b_arr, y_arr)
+            assert np.allclose(-(-p_arr + b_arr), y_arr)
             self.axes.semilogx(x_arr, p_arr, ":^", color=colour)
 
 

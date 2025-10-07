@@ -52,6 +52,7 @@ controls = []
 qois = []
 powers = []
 bnds = []
+gradients = []
 for i, x_control in enumerate(x_controls):
     for j, y_control in enumerate(y_controls):
         k = n_sample_y * i + j + 1
@@ -71,18 +72,18 @@ for i, x_control in enumerate(x_controls):
         )
         mesh_seq.progress = OptimisationProgress()
 
-        # FIXME: get_checkpoints gives tiny QoI
-        # mesh_seq.get_checkpoints(run_final_subinterval=True)
-        mesh_seq.solve_adjoint()
+        mesh_seq.solve_adjoint(compute_gradient=True)
         J = mesh_seq.J
         print(f"x_control={x_control:6.4f}, y_control={y_control:6.4f}, qoi={J:11.4e}")
         controls.append((x_control, y_control))
         qois.append(J)
         powers.append(mesh_seq.progress["J_power"][-1])
         bnds.append(mesh_seq.progress["J_bnd"][-1])
+        gradients.append((mesh_seq.gradient["xc"], mesh_seq.gradient["yc"]))
 
         # Save the trajectory to file
         np.save(f"{output_dir}/sampled_controls.npy", controls[:k])
         np.save(f"{output_dir}/sampled_qois.npy", qois)
         np.save(f"{output_dir}/sampled_powers.npy", powers)
         np.save(f"{output_dir}/sampled_bnds.npy", bnds)
+        np.save(f"{output_dir}/sampled_gradients.npy", gradients)

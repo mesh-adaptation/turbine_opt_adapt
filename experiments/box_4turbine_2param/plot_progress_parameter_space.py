@@ -96,4 +96,4 @@ for name, field in zip(("power", "qoi", "bnd"), (powers, qois, bnds)):
     axes.legend()
     if not os.path.exists(plot_dir):
         os.makedirs(plot_dir)
-    plt.savefig(f"{plot_dir}/progress_{name}_space.png", bbox_inches="tight")
+    plt.savefig(f"{plot_dir}/progress_{name}_space_{experiment_id}.png", bbox_inches="tight")

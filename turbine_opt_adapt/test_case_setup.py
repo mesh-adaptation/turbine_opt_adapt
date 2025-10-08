@@ -159,10 +159,31 @@ class TestCaseSetup(abc.ABC):
         mesh = mesh_seq.meshes[index]
         tau = domain_constant(cls.log_barrier_coefficient, mesh)
         summation = 0
+
+        # Contributions for feasible region
         for control in cls.control_dims:
             lower, upper = cls.control_bounds[control]
             x = mesh_seq.field_functions[control]
             summation += -ufl.ln(x - lower) - ufl.ln(upper - x)
+
+        # Contributions for turbine spacing
+        D = domain_constant(mesh_seq.tidal_farm_options.turbine_options.diameter, mesh)
+        spacing = 2 * D
+        coords = [
+            [domain_constant(xy[0], mesh), domain_constant(xy[1], mesh)]
+            for xy in cls.initial_turbine_coordinates
+        ]
+        for turbine, controls in cls.control_turbines.items():
+            for control in controls:
+                coords[turbine][cls.control_dims[control]] = (
+                    mesh_seq.field_functions[control]
+                )
+        for turbine in cls.control_turbines:
+            x, y = coords[turbine]
+            for other, (xo, yo) in enumerate(coords):
+                if turbine != other:
+                    summation += -ufl.ln((x - xo) ** 2 + (y - yo) ** 2 - spacing ** 2)
+
         return (1.0 / tau) * summation * ufl.dx
 
 def get_initial_condition(mesh_seq):

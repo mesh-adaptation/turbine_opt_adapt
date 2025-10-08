@@ -33,7 +33,7 @@ sampled_controls = np.load(f"{output_dir}/sampled_controls.npy")
 sampled_qois = -np.load(f"{output_dir}/sampled_qois.npy") * scaling
 sampled_powers = np.load(f"{output_dir}/sampled_powers.npy") * 1e-6
 sampled_bnds = np.load(f"{output_dir}/sampled_bnds.npy") * 1e-6
-assert np.allclose(sampled_powers + sampled_bnds, sampled_qois)
+assert np.allclose(-(-sampled_powers + sampled_bnds), sampled_qois)
 
 # Perform cubic interpolation away from boundary
 cubic_spline = CubicSpline(sampled_controls[10:-10], sampled_qois[10:-10])

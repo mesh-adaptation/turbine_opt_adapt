@@ -79,7 +79,9 @@ for i, x_control in enumerate(x_controls):
         qois.append(J)
         powers.append(mesh_seq.progress["J_power"][-1])
         bnds.append(mesh_seq.progress["J_bnd"][-1])
-        gradients.append((mesh_seq.gradient["xc"], mesh_seq.gradient["yc"]))
+        gradients.append(
+            (float(mesh_seq.gradient["xc"]), float(mesh_seq.gradient["yc"]))
+        )
 
         # Save the trajectory to file
         np.save(f"{output_dir}/sampled_controls.npy", controls[:k])

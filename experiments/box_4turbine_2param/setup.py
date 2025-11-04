@@ -6,7 +6,7 @@ __all__ = ["TwoParameterSetup"]
 
 
 class TwoParameterSetup(TestCaseSetup):
-    """Class to hold parameters related to the two-parameter test case."""
+    """Class to hold metadata related to the two-parameter test case."""
 
     initial_turbine_coordinates = [
         [450.0, 250.0],

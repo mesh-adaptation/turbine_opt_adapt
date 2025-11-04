@@ -23,7 +23,7 @@ from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
 
 # Add argparse for command-line arguments
-parser = argparse.ArgumentParser(description="Plot progress of controls and QoIs.")
+parser = argparse.ArgumentParser(description="Run the optimiser on a fixed mesh.")
 parser.add_argument("--n", type=float, default=0, help="Initial mesh resolution.")
 parser.add_argument("--taylor_test", action="store_true", help="Run a Taylor test.")
 parser.add_argument("--plot_setup", action="store_true", help="Plot the problem setup.")

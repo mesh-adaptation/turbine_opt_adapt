@@ -1,14 +1,12 @@
 """Module containing setup functions for the one-parameter test case."""
 
-
 from turbine_opt_adapt.test_case_setup import TestCaseSetup
 
 __all__ = ["OneParameterSetup"]
 
 
 class OneParameterSetup(TestCaseSetup):
-
-    """Class to hold parameters related to the one-parameter test case."""
+    """Class to hold metadata related to the one-parameter test case."""
 
     initial_turbine_coordinates = [
         [450.0, 250.0],

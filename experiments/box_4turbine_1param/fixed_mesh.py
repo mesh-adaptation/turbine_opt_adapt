@@ -70,12 +70,14 @@ if args.taylor_test:
 # Solve the adjoint problem, computing gradients, and plot the x-velocity component of
 # both the forward and adjoint solutions
 solutions = mesh_seq.solve_adjoint(compute_gradient=True)
+levels = np.linspace(2.48, 3.12, 9)
 if args.plot_fields:
     u, eta = solutions["solution_2d"]["forward"][0][0].subfunctions
     fig, axes = plt.subplots(figsize=(12, 5))
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
-    fig.colorbar(tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm"), ax=axes)
+    tc = tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm", levels=levels)
+    fig.colorbar(tc, ax=axes)
     plt.savefig(
         f"{plot_dir}/{experiment_id}_forward_unoptimised.jpg", bbox_inches="tight"
     )
@@ -83,9 +85,8 @@ if args.plot_fields:
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
     u_star, eta_star = solutions["solution_2d"]["adjoint"][0][0].subfunctions
-    fig.colorbar(
-        tricontourf(u_star.subfunctions[0], axes=axes, cmap="coolwarm"), ax=axes
-    )
+    tc = tricontourf(u_star.subfunctions[0], axes=axes, cmap="coolwarm")
+    fig.colorbar(tc, ax=axes)
     plt.savefig(
         f"{plot_dir}/{experiment_id}_adjoint_unoptimised.jpg", bbox_inches="tight"
     )
@@ -121,7 +122,8 @@ if args.plot_fields:
     fig, axes = plt.subplots(figsize=(12, 5))
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
-    fig.colorbar(tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm"), ax=axes)
+    tc = tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm", levels=levels)
+    fig.colorbar(tc, ax=axes)
     plt.savefig(
         f"{plot_dir}/{experiment_id}_forward_optimised.jpg", bbox_inches="tight"
     )

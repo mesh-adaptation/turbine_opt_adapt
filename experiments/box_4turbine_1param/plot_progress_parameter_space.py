@@ -67,7 +67,7 @@ axes.plot(
     fixed_mesh_qois[-1],
     "*",
     color="C2",
-    label="Converged value"
+    label="Converged value",
 )
 axes.set_xlabel(r"Control turbine position [$\mathrm{m}$]")
 axes.set_ylabel(r"Power output [$\mathrm{MW}$]")
@@ -85,4 +85,6 @@ ax_inset.grid(True)
 
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
-plt.savefig(f"{plot_dir}/progress_parameter_space.png", bbox_inches="tight")
+plt.savefig(
+    f"{plot_dir}/progress_parameter_space_{experiment_id}.png", bbox_inches="tight"
+)

@@ -1,7 +1,6 @@
 """Explore the 2D parameter space by sampling a range of control values."""
 
 import argparse
-import os
 
 import numpy as np
 from firedrake.utility_meshes import RectangleMesh
@@ -10,6 +9,7 @@ from goalie.optimisation import OptimisationProgress
 from goalie.time_partition import TimeInstant
 from setup import TwoParameterSetup
 
+from turbine_opt_adapt.experiment import get_fixed_mesh_experiment
 from turbine_opt_adapt.qoi import get_qoi
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
@@ -22,14 +22,8 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("--n", type=float, default=0, help="Initial mesh resolution.")
 args, _ = parser.parse_known_args()
-
 n = args.n
-if np.isclose(n, np.round(n)):
-    output_dir = f"outputs/fixed_mesh_{int(n)}"
-else:
-    output_dir = f"outputs/fixed_mesh_{n:.4f}".replace(".", "p")
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+_, _, output_dir, _ = get_fixed_mesh_experiment(n)
 
 # Consider a relatively fine uniform mesh
 nx = np.round(60 * 2**n).astype(int)

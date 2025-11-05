@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from firedrake.checkpointing import CheckpointFile
 from firedrake.pyplot import triplot
 
-from turbine_opt_adapt.experiment import get_latest_experiment_id
+from turbine_opt_adapt.experiment import GoalOrientedExperiment
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Plot meshes from a given simulation.")
@@ -22,22 +22,27 @@ parser.add_argument(
     action="store_true",
     help="Use anisotropic adaptation (default: False).",
 )
+parser.add_argument(
+    "--base_complexity",
+    type=float,
+    default=1000.0,
+    help="Base metric complexity (default: 1000.0).",
+)
+parser.add_argument(
+    "--target_complexity",
+    type=float,
+    default=1000.0,  # FIXME: Avoid adjoint solver fail with larger values
+    help="Target metric complexity (default: 1000.0).",
+)
 args = parser.parse_args()
-
-# Use parsed arguments
 n = args.n
 anisotropic = args.anisotropic
-config_str = f"goal_oriented_n{n}_anisotropic{int(anisotropic)}"
-
-# Determine the experiment_id and get associated directory
-experiment_id = get_latest_experiment_id()
-print(f"Experiment ID: {experiment_id}")
-data_dir = os.path.join("data", experiment_id)
-if not os.path.exists(data_dir):
-    raise FileNotFoundError(f"Data directory '{data_dir}' does not exist.")
-plot_dir = f"plots/{experiment_id}"
-if not os.path.exists(plot_dir):
-    os.makedirs(plot_dir)
+base = args.base_complexity
+target = args.target_complexity
+experiment = GoalOrientedExperiment(n, anisotropic, base, target)
+config_str = experiment.config_str
+plot_dir = experiment.plot_dir
+data_dir = experiment.data_dir
 
 # Write each intermediate adapted mesh
 file_exists = True

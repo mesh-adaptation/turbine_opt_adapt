@@ -4,7 +4,6 @@ Run `python3 fixed_mesh.py --help` to see the available command-line options.
 """
 
 import argparse
-import os
 from time import perf_counter
 
 import numpy as np
@@ -12,6 +11,7 @@ from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from setup import EightParameterSetup
 
+from turbine_opt_adapt.experiment import FixedMeshExperiment
 from turbine_opt_adapt.plotting import plot_box_setup, plot_patches, plot_solution
 
 # TODO: Avoid duplication with 1- and 2-parameter cases
@@ -23,28 +23,15 @@ parser.add_argument("--taylor_test", action="store_true", help="Run a Taylor tes
 parser.add_argument("--plot_setup", action="store_true", help="Plot the problem setup.")
 parser.add_argument("--plot_fields", action="store_true", help="Plot solution fields.")
 args, _ = parser.parse_known_args()
-
-# Use parsed arguments
 n = args.n
-
-if np.isclose(n, np.round(n)):
-    experiment_id = f"fixed_mesh_{int(n)}"
-else:
-    experiment_id = f"fixed_mesh_{n:.4f}".replace(".", "p")
-plot_dir = f"plots/{experiment_id}"
-if not os.path.exists(plot_dir):
-    os.makedirs(plot_dir)
-output_dir = f"outputs/{experiment_id}"
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
-
-start_time = perf_counter()
+experiment = FixedMeshExperiment(n)
 
 # Plot the problem setup
 if args.plot_setup:
     plot_box_setup("plots/setup.jpg", EightParameterSetup)
 
 # Set up the AdjointMeshSeq
+start_time = perf_counter()
 mesh_seq = EightParameterSetup.create_mesh_seq(n)
 
 # Run a Taylor test to check the gradient is computed correctly
@@ -58,11 +45,8 @@ if args.plot_fields:
     print(f"J = {J:.4e}")
 
     # Plot the x-velocity component of both the forward and adjoint solutions
-    for mode in ("forward", "adjoint"):
-        plot_solution(
-            solutions["solution_2d"][mode],
-            f"{plot_dir}/{experiment_id}_{mode}_unoptimised.jpg",
-        )
+    plot_solution(solutions, experiment, adjoint=False)
+    plot_solution(solutions, experiment, adjoint=True)
 
 # Set optimiser parameters, including a large starting step length
 parameters = OptimisationParameters({"lr": 10.0, "gtol": 1.0e-3})
@@ -75,12 +59,12 @@ solutions = optimiser.minimise()
 
 cpu_time = perf_counter() - start_time
 print(f"Optimisation completed in {cpu_time:.2f} seconds.")
-with open(f"{output_dir}/cputime.txt", "w") as f:
+with open(f"{experiment.output_dir}/cputime.txt", "w") as f:
     f.write(f"{cpu_time:.2f} seconds\n")
 
 # Write the optimiser progress to file
 for key, value in optimiser.progress.items():
-    np.save(f"{output_dir}/{experiment_id}_{key}.npy", value)
+    np.save(f"{experiment.output_dir}/{experiment.config_str}_{key}.npy", value)
 
 if args.plot_fields:
     # Plot the patches for the final positions in relatively low resolution cases
@@ -89,10 +73,7 @@ if args.plot_fields:
             "xc": optimiser.progress["controls"][-1][0],
             "yc": optimiser.progress["controls"][-1][1],
         }
-        plot_patches(mesh_seq, optimised, f"{plot_dir}/patches.jpg")
+        plot_patches(mesh_seq, optimised, f"{experiment.plot_dir}/patches.jpg")
 
     # Plot the x-velocity component of the forward solution for the final control
-    plot_solution(
-        solutions["solution_2d"]["forward"],
-        f"{plot_dir}/{experiment_id}_forward_optimised.jpg",
-    )
+    plot_solution(solutions, experiment, optimised=True)

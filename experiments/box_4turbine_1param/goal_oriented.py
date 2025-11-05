@@ -22,7 +22,7 @@ from goalie.plot import plot_indicator_snapshots
 from matplotlib import ticker
 from setup import OneParameterSetup
 
-from turbine_opt_adapt.experiment import get_experiment_id
+from turbine_opt_adapt.experiment import GoalOrientedExperiment
 from turbine_opt_adapt.plotting import plot_patches, plot_solution
 
 # Add argparse for command-line arguments
@@ -47,36 +47,14 @@ parser.add_argument(
 )
 parser.add_argument("--plot_fields", action="store_true", help="Plot solution fields.")
 args, _ = parser.parse_known_args()
-
-# Use parsed arguments
 n = args.n
 anisotropic = args.anisotropic
 base = args.base_complexity
 target = args.target_complexity
-if np.isclose(n, np.round(n)):
-    prefix = f"goal_oriented_n{int(n)}"
-else:
-    prefix = f"goal_oriented_n{n:.4f}".replace(".", "p")
-config_str = (
-    f"{prefix}_anisotropic{int(anisotropic)}_base{int(base)}_target{int(target)}"
-)
-
-# Determine the experiment_id and create associated directories
-experiment_id = get_experiment_id()
-print(f"Experiment ID: {experiment_id}")
-plot_dir = os.path.join("plots", experiment_id)
-if not os.path.exists(plot_dir):
-    os.makedirs(plot_dir)
-output_dir = os.path.join("outputs", experiment_id)
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
-data_dir = os.path.join("data", experiment_id)
-if not os.path.exists(data_dir):
-    os.makedirs(data_dir)
-
-start_time = perf_counter()
+experiment = GoalOrientedExperiment(n, anisotropic, base, target)
 
 # Set up the GoalOrientedMeshSeq
+start_time = perf_counter()
 mesh_seq = OneParameterSetup.create_mesh_seq(n, goal_oriented=True)
 
 if args.plot_fields:
@@ -86,11 +64,8 @@ if args.plot_fields:
     print(f"J = {J:.4e}")
 
     # Plot the x-velocity component of both the forward and adjoint solutions
-    for mode in ("forward", "adjoint"):
-        plot_solution(
-            solutions["solution_2d"][mode],
-            f"{plot_dir}/{config_str}_{mode}_unoptimised.jpg",
-        )
+    plot_solution(solutions, experiment, adjoint=False)
+    plot_solution(solutions, experiment, adjoint=True)
 
 # Set optimiser parameters, including a large starting step length
 parameters = OptimisationParameters({"lr": 10.0, "gtol": 1.0e-3})
@@ -154,7 +129,9 @@ def adaptor(mesh_seq, solutions, indicators):
     )
 
     # Write each intermediate adapted mesh
-    checkpoint_filename = os.path.join(data_dir, f"{config_str}_mesh{iteration}.h5")
+    checkpoint_filename = os.path.join(
+        experiment.data_dir, f"{experiment.config_str}_mesh{iteration}.h5"
+    )
     with CheckpointFile(checkpoint_filename, "w") as chk:
         chk.save_mesh(mesh_seq[0])
 
@@ -168,7 +145,9 @@ def adaptor(mesh_seq, solutions, indicators):
         )
         axes.set_title(f"Indicator at iteration {iteration}")
         fig.colorbar(tcs[0][0], orientation="horizontal", pad=0.2)
-        fig.savefig(f"{plot_dir}/{config_str}_indicator{iteration}.jpg")
+        fig.savefig(
+            f"{experiment.plot_dir}/{experiment.config_str}_indicator{iteration}.jpg"
+        )
         plt.close()
 
     # Check whether the target complexity has been (approximately) reached. If not,
@@ -186,20 +165,21 @@ optimiser.minimise(dropout=False)
 
 cpu_time = perf_counter() - start_time
 print(f"Optimisation completed in {cpu_time:.2f} seconds.")
-with open(f"{output_dir}/cputime.txt", "w") as f:
+with open(f"{experiment.output_dir}/cputime.txt", "w") as f:
     f.write(f"{cpu_time:.2f} seconds\n")
 
 # Write the optimiser progress to file
 for key, value in optimiser.progress.items():
-    np.save(f"{output_dir}/{config_str}_{key}.npy", value)
+    np.save(f"{experiment.output_dir}/{experiment.config_str}_{key}.npy", value)
 
 if args.plot_fields:
     # Plot the patches for the final positions
     optimised = {"yc": optimiser.progress["control"][-1]}
-    plot_patches(mesh_seq, optimised, f"{plot_dir}/{config_str}_patches.jpg")
+    plot_patches(
+        mesh_seq,
+        optimised,
+        f"{experiment.plot_dir}/{experiment.config_str}_patches.jpg",
+    )
 
     # Plot the x-velocity component of the forward solution for the final control/mesh
-    plot_solution(
-        solutions["solution_2d"]["forward"],
-        f"{plot_dir}/{config_str}_forward_optimised.jpg",
-    )
+    plot_solution(solutions, experiment, optimised=True)

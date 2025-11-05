@@ -131,22 +131,31 @@ def plot_patches(mesh_seq, optimised, filename):
     plt.savefig(filename, bbox_inches="tight")
 
 
-def plot_solution(solution_array, filename):
+def plot_solution(solutions, experiment, adjoint=False, optimised=False):
     """Plot the forward or adjoint solution field.
 
-    :arg solution_array: the array of velocity-elevation fields
-    :type solution_array: :class:`~.firedrake.function.Function`
-    :arg filename: name of the file to save the plot
-    :type filename: :class:`str`
+    :arg solutions: the solution data object
+    :type solutions: :class:`~.goalie.function_data.SolutionData`
+    :arg experiment: experiment metadata class
+    :type experiment: :class`~.Experiment`
+    :arg adjoint: if True, plot the adjoint solution, otherwise the forward solution
+    :type adjoint: bool
+    :arg optimised: if True, the solution has been optimised
+    :type optimised: bool
     """
-    u, eta = solution_array[0][0].subfunctions
+    mode = "adjoint" if adjoint else "forward"
+    optim = "optimised" if optimised else "unoptimised"
+    u, eta = solutions["solution_2d"][mode][0][0].subfunctions
     fig, axes = plt.subplots(figsize=(12, 5))
     axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
     axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
     levels = np.linspace(2.48, 3.12, 9)
     tc = tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm", levels=levels)
     fig.colorbar(tc, ax=axes)
-    plt.savefig(filename, bbox_inches="tight")
+    plt.savefig(
+        f"{experiment.plot_dir}/{experiment.config_str}_{mode}_{optim}.jpg",
+        bbox_inches="tight",
+    )
 
 
 class ProgressPlotter:

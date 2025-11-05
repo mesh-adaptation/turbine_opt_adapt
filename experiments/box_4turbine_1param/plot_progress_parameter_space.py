@@ -5,7 +5,6 @@ options.
 """
 
 import argparse
-import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,20 +12,19 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.interpolate import CubicSpline
 from setup import OneParameterSetup
 
+from turbine_opt_adapt.experiment import FixedMeshExperiment
+
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(
     description="Plot progress of controls and QoIs on the same axis."
 )
 parser.add_argument("--n", type=float, default=0, help="Initial mesh resolution.")
 args = parser.parse_args()
-
 n = args.n
-if np.isclose(n, np.round(n)):
-    experiment_id = f"fixed_mesh_{int(n)}"
-else:
-    experiment_id = f"fixed_mesh_{n:.4f}".replace(".", "p")
-output_dir = f"outputs/{experiment_id}"
-plot_dir = f"plots/{experiment_id}"
+experiment = FixedMeshExperiment(n)
+config_str = experiment.config_str
+output_dir = experiment.output_dir
+plot_dir = experiment.plot_dir
 scaling = 1e-6 / OneParameterSetup.qoi_scaling
 
 sampled_controls = np.load(f"{output_dir}/sampled_controls.npy")
@@ -53,8 +51,8 @@ max_control = critical_controls[max_index]
 max_qoi = critical_qois[max_index]
 print(f"Maximum QoI: {max_qoi} at Control: {max_control}")
 
-fixed_mesh_controls = np.load(f"{output_dir}/{experiment_id}_controls.npy")
-fixed_mesh_qois = -np.load(f"{output_dir}/{experiment_id}_qois.npy") * scaling
+fixed_mesh_controls = np.load(f"{output_dir}/{config_str}_controls.npy")
+fixed_mesh_qois = -np.load(f"{output_dir}/{config_str}_qois.npy") * scaling
 
 # Plot the trajectory with the maximum QoI highlighted
 fig, axes = plt.subplots()
@@ -83,8 +81,6 @@ ax_inset.set_xlim(max_control - 2.0, max_control + 2.0)
 ax_inset.set_ylim(max_qoi - 0.002, max_qoi + 0.002)
 ax_inset.grid(True)
 
-if not os.path.exists(plot_dir):
-    os.makedirs(plot_dir)
 plt.savefig(
-    f"{plot_dir}/progress_parameter_space_{experiment_id}.png", bbox_inches="tight"
+    f"{plot_dir}/progress_parameter_space_{config_str}.png", bbox_inches="tight"
 )

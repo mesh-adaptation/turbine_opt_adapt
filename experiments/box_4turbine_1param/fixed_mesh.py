@@ -53,11 +53,8 @@ print(parameters)
 # Run the optimiser
 optimiser = QoIOptimiser(mesh_seq, "yc", parameters, method="gradient_descent")
 solutions = optimiser.minimise()
-
 cpu_time = perf_counter() - start_time
 print(f"Optimisation completed in {cpu_time:.2f} seconds.")
-with open(f"{experiment.output_dir}/cputime.txt", "w") as f:
-    f.write(f"{cpu_time:.2f} seconds\n")
 
 # Write the optimiser progress to file
 for key, value in optimiser.progress.items():

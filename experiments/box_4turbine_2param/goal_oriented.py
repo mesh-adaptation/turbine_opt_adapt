@@ -14,22 +14,16 @@ from animate.adapt import adapt
 from animate.metric import RiemannianMetric
 from firedrake.checkpointing import CheckpointFile
 from firedrake.functionspace import TensorFunctionSpace
-from firedrake.utility_meshes import RectangleMesh
-from goalie.go_mesh_seq import GoalOrientedMeshSeq
 from goalie.log import pyrint
 from goalie.metric import ramp_complexity
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
 from goalie.plot import plot_indicator_snapshots
-from goalie.time_partition import TimeInstant
 from matplotlib import ticker
 from setup import TwoParameterSetup
 
 from turbine_opt_adapt.experiment import get_experiment_id
 from turbine_opt_adapt.plotting import plot_patches, plot_solution
-from turbine_opt_adapt.qoi import get_qoi
-from turbine_opt_adapt.solver import get_solver
-from turbine_opt_adapt.test_case_setup import get_initial_condition
 
 # TODO: Avoid duplication with 1-parameter case
 
@@ -85,17 +79,7 @@ if not os.path.exists(data_dir):
 start_time = perf_counter()
 
 # Set up the GoalOrientedMeshSeq
-nx = np.round(60 * 2**n).astype(int)
-ny = np.round(25 * 2**n).astype(int)
-mesh_seq = GoalOrientedMeshSeq(
-    TimeInstant(TwoParameterSetup.get_fields()),
-    RectangleMesh(nx, ny, 1200, 500),
-    get_initial_condition=get_initial_condition,
-    get_solver=get_solver,
-    get_qoi=get_qoi,
-    qoi_type="steady",
-    test_case_setup=TwoParameterSetup,
-)
+mesh_seq = TwoParameterSetup.create_mesh_seq(n, goal_oriented=True)
 
 if args.plot_fields:
     # Solve the adjoint problem, computing gradients
@@ -198,7 +182,7 @@ def adaptor(mesh_seq, solutions, indicators):
 
 # Run the optimiser
 optimiser = QoIOptimiser(
-    mesh_seq, "yc", parameters, method="gradient_descent", adaptor=adaptor
+    mesh_seq, ("xc", "yc"), parameters, method="gradient_descent", adaptor=adaptor
 )
 optimiser.minimise(dropout=False)
 

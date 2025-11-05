@@ -8,17 +8,11 @@ import os
 from time import perf_counter
 
 import numpy as np
-from firedrake.utility_meshes import RectangleMesh
-from goalie.adjoint import AdjointMeshSeq
 from goalie.optimisation import QoIOptimiser
 from goalie.options import OptimisationParameters
-from goalie.time_partition import TimeInstant
 from setup import OneParameterSetup
 
 from turbine_opt_adapt.plotting import plot_box_setup, plot_patches, plot_solution
-from turbine_opt_adapt.qoi import get_qoi
-from turbine_opt_adapt.solver import get_solver
-from turbine_opt_adapt.test_case_setup import get_initial_condition
 
 # Add argparse for command-line arguments
 parser = argparse.ArgumentParser(description="Run the optimiser on a fixed mesh.")
@@ -44,22 +38,12 @@ if not os.path.exists(output_dir):
 
 start_time = perf_counter()
 
-# Set up the AdjointMeshSeq
-nx = np.round(60 * 2**n).astype(int)
-ny = np.round(25 * 2**n).astype(int)
-mesh_seq = AdjointMeshSeq(
-    TimeInstant(OneParameterSetup.get_fields()),
-    RectangleMesh(nx, ny, 1200, 500),
-    get_initial_condition=get_initial_condition,
-    get_solver=get_solver,
-    get_qoi=get_qoi,
-    qoi_type="steady",
-    test_case_setup=OneParameterSetup,
-)
-
 # Plot the problem setup
 if args.plot_setup:
     plot_box_setup("plots/setup.jpg", OneParameterSetup)
+
+# Set up the AdjointMeshSeq
+mesh_seq = OneParameterSetup.create_mesh_seq(n)
 
 # Run a Taylor test to check the gradient is computed correctly
 if args.taylor_test:

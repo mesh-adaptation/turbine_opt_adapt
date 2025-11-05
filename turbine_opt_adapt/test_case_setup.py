@@ -1,16 +1,25 @@
 """Module containing a base class for test case setup."""
+
 import abc
 
+import numpy as np
 import ufl
 from finat.ufl import FiniteElement, MixedElement, VectorElement
 from firedrake.function import Function
+from firedrake.utility_meshes import RectangleMesh
+from goalie.adjoint import AdjointMeshSeq
 from goalie.field import Field
+from goalie.go_mesh_seq import GoalOrientedMeshSeq
+from goalie.time_partition import TimeInstant
 from thetis.utility import domain_constant
+
+from turbine_opt_adapt.qoi import get_qoi
+from turbine_opt_adapt.solver import get_solver
 
 __all__ = ["TestCaseSetup", "get_initial_condition"]
 
-class TestCaseSetup(abc.ABC):
 
+class TestCaseSetup(abc.ABC):
     """Base class for holding parameters related to a turbine optimisation test case."""
 
     initial_turbine_coordinates = []  # list of 2D coordinates
@@ -54,8 +63,7 @@ class TestCaseSetup(abc.ABC):
         :rtype: list[float]
         """
         return [
-            cls.initial_turbine_coordinates[turbine]
-            for turbine in cls.control_turbines
+            cls.initial_turbine_coordinates[turbine] for turbine in cls.control_turbines
         ]
 
     @classmethod
@@ -175,16 +183,39 @@ class TestCaseSetup(abc.ABC):
         ]
         for turbine, controls in cls.control_turbines.items():
             for control in controls:
-                coords[turbine][cls.control_dims[control]] = (
-                    mesh_seq.field_functions[control]
-                )
+                coords[turbine][cls.control_dims[control]] = mesh_seq.field_functions[
+                    control
+                ]
         for turbine in cls.control_turbines:
             x, y = coords[turbine]
             for other, (xo, yo) in enumerate(coords):
                 if turbine != other:
-                    summation += -ufl.ln((x - xo) ** 2 + (y - yo) ** 2 - spacing ** 2)
+                    summation += -ufl.ln((x - xo) ** 2 + (y - yo) ** 2 - spacing**2)
 
         return (1.0 / tau) * summation * ufl.dx
+
+    @classmethod
+    def create_mesh_seq(cls, n, goal_oriented=False):
+        """
+        Create an AdjointMeshSeq for the problem with a given mesh resolution.
+
+        :arg n: mesh resolution parameter
+        :type n: int
+        :return: the mesh sequence
+        :rtype: :class:`~.goalie.adjoint.AdjointMeshSeq`
+        """
+        nx = np.round(60 * 2**n).astype(int)
+        ny = np.round(25 * 2**n).astype(int)
+        return (GoalOrientedMeshSeq if goal_oriented else AdjointMeshSeq)(
+            TimeInstant(cls.get_fields()),
+            RectangleMesh(nx, ny, 1200, 500),
+            get_initial_condition=get_initial_condition,
+            get_solver=get_solver,
+            get_qoi=get_qoi,
+            qoi_type="steady",
+            test_case_setup=cls,
+        )
+
 
 def get_initial_condition(mesh_seq):
     """Get the initial conditions for a turbine optimisation test case.
@@ -203,5 +234,7 @@ def get_initial_condition(mesh_seq):
         for control in controls:
             dim = mesh_seq.test_case_setup.control_dims[control]
             ics[control] = Function(mesh_seq.function_spaces[control][0])
-            ics[control].assign(mesh_seq.test_case_setup.initial_turbine_coordinates[turbine][dim])
+            ics[control].assign(
+                mesh_seq.test_case_setup.initial_turbine_coordinates[turbine][dim]
+            )
     return ics

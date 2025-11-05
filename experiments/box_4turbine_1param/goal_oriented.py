@@ -14,7 +14,6 @@ from animate.adapt import adapt
 from animate.metric import RiemannianMetric
 from firedrake.checkpointing import CheckpointFile
 from firedrake.functionspace import TensorFunctionSpace
-from firedrake.pyplot import tricontourf
 from firedrake.utility_meshes import RectangleMesh
 from goalie.go_mesh_seq import GoalOrientedMeshSeq
 from goalie.log import pyrint
@@ -27,7 +26,7 @@ from matplotlib import ticker
 from setup import OneParameterSetup
 
 from turbine_opt_adapt.experiment import get_experiment_id
-from turbine_opt_adapt.plotting import plot_patches
+from turbine_opt_adapt.plotting import plot_patches, plot_solution
 from turbine_opt_adapt.qoi import get_qoi
 from turbine_opt_adapt.solver import get_solver
 from turbine_opt_adapt.test_case_setup import get_initial_condition
@@ -96,25 +95,18 @@ mesh_seq = GoalOrientedMeshSeq(
     test_case_setup=OneParameterSetup,
 )
 
-# Solve the adjoint problem, computing gradients, and plot the x-velocity component of
-# both the forward and adjoint solutions
 if args.plot_fields:
+    # Solve the adjoint problem, computing gradients
     solutions = mesh_seq.solve_adjoint(compute_gradient=True)
-    u, eta = solutions["solution_2d"]["forward"][0][0].subfunctions
-    fig, axes = plt.subplots(figsize=(12, 5))
-    axes.set_title(r"Forward $x$-velocity")
-    fig.colorbar(tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm"), ax=axes)
-    plt.savefig(f"{plot_dir}/{config_str}_forward_unoptimised.jpg", bbox_inches="tight")
-    fig, axes = plt.subplots(figsize=(12, 5))
-    axes.set_title(r"Adjoint $x$-velocity")
-    u_star, eta_star = solutions["solution_2d"]["adjoint"][0][0].subfunctions
-    fig.colorbar(
-        tricontourf(u_star.subfunctions[0], axes=axes, cmap="coolwarm"), ax=axes
-    )
-    plt.savefig(f"{plot_dir}/{config_str}_adjoint_unoptimised.jpg", bbox_inches="tight")
+    J = mesh_seq.J
+    print(f"J = {J:.4e}")
 
-J = mesh_seq.J
-print(f"J = {J:.4e}")
+    # Plot the x-velocity component of both the forward and adjoint solutions
+    for mode in ("forward", "adjoint"):
+        plot_solution(
+            solutions["solution_2d"][mode],
+            f"{plot_dir}/{config_str}_{mode}_unoptimised.jpg",
+        )
 
 # Set optimiser parameters, including a large starting step length
 parameters = OptimisationParameters({"lr": 10.0, "gtol": 1.0e-3})
@@ -223,9 +215,7 @@ if args.plot_fields:
     plot_patches(mesh_seq, optimised, f"{plot_dir}/{config_str}_patches.jpg")
 
     # Plot the x-velocity component of the forward solution for the final control/mesh
-    u, eta = solutions["solution_2d"]["forward"][0][0].subfunctions
-    fig, axes = plt.subplots(figsize=(12, 5))
-    axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
-    axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
-    fig.colorbar(tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm"), ax=axes)
-    plt.savefig(f"{plot_dir}/{config_str}_forward_optimised.jpg", bbox_inches="tight")
+    plot_solution(
+        solutions["solution_2d"]["forward"],
+        f"{plot_dir}/{config_str}_forward_optimised.jpg",
+    )

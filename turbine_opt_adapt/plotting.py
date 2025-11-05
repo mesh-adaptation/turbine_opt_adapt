@@ -2,9 +2,10 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from firedrake.pyplot import tricontourf
 from matplotlib import patches
 
-__all__ = ["plot_box_setup", "plot_patches", "ProgressPlotter"]
+__all__ = ["plot_box_setup", "plot_patches", "plot_solution", "ProgressPlotter"]
 
 
 def plot_box_setup(filename, test_case):
@@ -43,7 +44,7 @@ def plot_box_setup(filename, test_case):
             *test_case.control_bounds[dim2control[1]],
             color="C1",
             alpha=0.3,
-            label="Feasible region"
+            label="Feasible region",
         )
 
     # Add patches for the fixed turbines
@@ -130,8 +131,25 @@ def plot_patches(mesh_seq, optimised, filename):
     plt.savefig(filename, bbox_inches="tight")
 
 
-class ProgressPlotter:
+def plot_solution(solution_array, filename):
+    """Plot the forward or adjoint solution field.
 
+    :arg solution_array: the array of velocity-elevation fields
+    :type solution_array: :class:`~.firedrake.function.Function`
+    :arg filename: name of the file to save the plot
+    :type filename: :class:`str`
+    """
+    u, eta = solution_array[0][0].subfunctions
+    fig, axes = plt.subplots(figsize=(12, 5))
+    axes.set_xlabel(r"x-coordinate $\mathrm{[m]}$")
+    axes.set_ylabel(r"y-coordinate $\mathrm{[m]}$")
+    levels = np.linspace(2.48, 3.12, 9)
+    tc = tricontourf(u.subfunctions[0], axes=axes, cmap="coolwarm", levels=levels)
+    fig.colorbar(tc, ax=axes)
+    plt.savefig(filename, bbox_inches="tight")
+
+
+class ProgressPlotter:
     """Class to encapsulate the plotting logic for progress of controls and QoIs."""
 
     base = 1000  # Base value for target complexity
@@ -228,7 +246,6 @@ class ProgressPlotter:
                 return
             assert np.allclose(-(-p_arr + b_arr), y_arr)
             self.axes.semilogx(x_arr, p_arr, ":^", color=colour)
-
 
     @staticmethod
     def n_str(n):
